@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Static Quiz</title>
+        <link rel="stylesheet" href="css.css">
+    </head>
+
+    <body>
+        <h1 id="h1">Basic knowledge on HTML Quiz</h1>
+        <div id="header">
+            <div id="score">
+                <p id="scoretxt">Score: 0</p>
+            </div>
+            <div id="timer">Time left: 300 seconds</div>
+        </div>
+        <div id="quiz">
+            <div id="q1" class="question">
+                <h3>1. What does HTML stand for?</h3>
+                <select id="ans1" name="ans1">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="correct">Hyper Text Markup Language</option>
+                    <option value="incorrect">High Tech Modern Language</option>
+                    <option value="incorrect">Home Tool Markup Language</option>
+                    <option value="incorrect">Hyperlink and Text Management Language</option>
+                </select>
+            </div>
+
+            <div id="q2" class="question">
+                <h3>2. Which HTML tag is used to create a hyperlink?</h3>
+                <select id="ans2" name="ans2">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="incorrect">&lt;link&gt;</option>
+                    <option value="correct">&lt;a&gt;</option>
+                    <option value="incorrect">&lt;href&gt;</option>
+                    <option value="incorrect">&lt;hyper&gt;</option>
+                </select>
+            </div>
+
+            <div id="q3" class="question">
+                <h3>3. What is the correct way to add a line break in HTML?</h3>
+                <select id="ans3" name="ans3">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="correct">&lt;br&gt;</option>
+                    <option value="incorrect">&lt;lb&gt;</option>
+                    <option value="incorrect">&lt;break&gt;</option>
+                    <option value="incorrect">&lt;newline&gt;</option>
+                </select>
+            </div>
+
+            <div id="q4" class="question">
+                <h3>4. Which of the following is the correct HTML for inserting an image?</h3>
+                <select id="ans4" name="ans4">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="correct">&lt;img src="image.jpg" alt="Description"&gt;</option>
+                    <option value="incorrect">&lt;image src="image.jpg"&gt;</option>
+                    <option value="incorrect">&lt;img&gt;image.jpg&lt;/img&gt;</option>
+                    <option value="incorrect">&lt;picture src="image.jpg"&gt;</option>
+                </select>
+            </div>
+
+            <div id="q5" class="question">
+                <h3>5. What is the purpose of the &lt;title&gt; tag in HTML?</h3>
+                <select id="ans5" name="ans5">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="incorrect">To display the main heading on the webpage</option>
+                    <option value="correct">To specify the title of the webpage shown in the browser tab</option>
+                    <option value="incorrect">To make text bold</option>
+                    <option value="incorrect">To define a section of the page</option>
+                </select>
+            </div>
+
+            <div id="q6" class="question">
+                <h3>6. How do you create an ordered list in HTML?</h3>
+                <select id="ans6" name="ans6">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="incorrect">&lt;ul&gt;</option>
+                    <option value="correct">&lt;ol&gt;</option>
+                    <option value="incorrect">&lt;list&gt;</option>
+                    <option value="incorrect">&lt;li&gt;</option>
+                </select>
+            </div>
+
+            <div id="q7" class="question">
+                <h3>7. What is the correct way to define a table in HTML?</h3>
+                <select id="ans7" name="ans7">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="correct">&lt;table&gt;</option>
+                    <option value="incorrect">&lt;tab&gt;</option>
+                    <option value="incorrect">&lt;tbl&gt;</option>
+                    <option value="incorrect">&lt;td&gt;</option>
+                </select>
+            </div>
+
+            <div id="q8" class="question">
+                <h3>8. Which HTML tag is used to define a paragraph?</h3>
+                <select id="ans8" name="ans8">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="correct">&lt;p&gt;</option>
+                    <option value="incorrect">&lt;para&gt;</option>
+                    <option value="incorrect">&lt;pg&gt;</option>
+                    <option value="incorrect">&lt;pr&gt;</option>
+                </select>
+            </div>
+
+            <div id="q9" class="question">
+                <h3>9. How do you specify that an input field is required in an HTML form?</h3>
+                <select id="ans9" name="ans9">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="correct">&lt;input type="text" required&gt;</option>
+                    <option value="incorrect">&lt;input type="text" mandatory&gt;</option>
+                    <option value="incorrect">&lt;input type="text" must&gt;</option>
+                    <option value="incorrect">&lt;input type="text" validate&gt;</option>
+                </select>
+            </div>
+
+            <div id="q10" class="question">
+                <h3>10. What does the &lt;meta&gt; tag do in HTML?</h3>
+                <select id="ans10" name="ans10">
+                    <option value="" disabled selected>Select the correct option from the following</option>
+                    <option value="correct">Defines metadata about the document (e.g., character set, description)
+                    </option>
+                    <option value="incorrect">Adds a clickable button to the webpage</option>
+                    <option value="incorrect">Creates a navigation bar</option>
+                    <option value="incorrect">Embeds a video into the webpage</option>
+                </select>
+            </div>
+            <div id="sbmt">
+                <input type="submit" value="Submit" id="submit">
+            </div>
+        </div>
+        <script src="script.js"></script>
+    </body>
+
+</html>
