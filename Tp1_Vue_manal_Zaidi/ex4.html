@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercice 4</title>
+</head>
+<body>
+    <div id="app">
+        <ul>
+            <li id="color" >
+                Couleur de la police: <br>
+                Rouge <input type="radio" value="red" v-model="Tcolor"> <br>
+                Bleu <input type="radio" value="blue" v-model="Tcolor">
+            </li>
+            <li id="aff" >
+                Afficher/cacher le paragraphe? <input type="checkbox" v-model="show">
+            </li>
+        </ul>
+        <p id="text" :style="{color: Tcolor}" v-show="show">Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero corrupti dolorum harum, iure sapiente molestiae fuga voluptatem natus! A sed similique tempore, quod pariatur alias dolorum debitis quo voluptatibus qui.</p>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data(){
+                return {
+                    show: true,
+                    Tcolor: "red"
+                };
+            },
+        })
+        app.mount('#app');
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title class="app"> {{ titre }} </title>
+    </head>
+
+    <body>
+        <div class="app">
+            <button type="button" value="h" v-on:click="changetitre()"> {{ titre }} </button>
+        </div>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script>
+            document.querySelectorAll(".app").forEach(el =>{
+                Vue.createApp({
+                    data() {
+                        return {
+                            titre: "Cliquez moi!"
+                        };
+                    },
+                    methods: {
+                        changetitre() {
+                            this.titre = "Cliqué";
+                        }
+                    }
+                })
+                .mount(el);
+            });
+        </script>
+    </body>
+
+</html>
