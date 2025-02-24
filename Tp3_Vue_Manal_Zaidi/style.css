@@ -1,0 +1,77 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f5f0;
+    color: #4a4a4a;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+#app {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#filtrage {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #ffebd2;
+    border-radius: 8px;
+}
+
+#filtrage input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.task-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #fff3e6;
+    border: 1px solid #ffd8b2;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    background-color: #ffe5cc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.completed-task {
+    background-color: #e6f4ea;
+    border-color: #c8e6c9;
+    text-decoration: line-through;
+    color: #777;
+}
+
+.task-id {
+    font-size: 0.9em;
+    color: #888;
+}
+
+.task-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #d35400;
+    margin: 5px 0;
+}
+
+.task-description {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.total-tasks {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #ffebd2;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    color: #d35400;
+}

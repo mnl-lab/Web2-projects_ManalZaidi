@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "title": "Faire les courses",
+    "description": "Acheter des légumes et du lait.",
+    "completed": false
+  },
+  {
+    "id": 2,
+    "title": "Faire du sport",
+    "description": "Courir pendant 30 minutes.",
+    "completed": true
+  },
+  {
+    "id": 3,
+    "title": "Réviser pour l'examen",
+    "description": "Relire le chapitre 5 du manuel.",
+    "completed": false
+  },
+  {
+    "id": 4,
+    "title": "Appeler maman",
+    "description": "Discuter des nouvelles de la semaine.",
+    "completed": false
+  },
+  {
+    "id": 5,
+    "title": "Faire le ménage",
+    "description": "Passer l'aspirateur et nettoyer la cuisine.",
+    "completed": true
+  },
+  {
+    "id": 6,
+    "title": "Lire un livre",
+    "description": "Commencer le premier chapitre de 'Le Petit Prince'.",
+    "completed": false
+  },
+  {
+    "id": 7,
+    "title": "Cuisiner le dîner",
+    "description": "Préparer du riz avec du poulet.",
+    "completed": true
+  },
+  {
+    "id": 8,
+    "title": "Écrire un poème",
+    "description": "Exprimer mes pensées de la journée en vers.",
+    "completed": false
+  },
+  {
+    "id": 9,
+    "title": "Regarder un documentaire",
+    "description": "Explorer un sujet historique intéressant.",
+    "completed": true
+  },
+  {
+    "id": 10,
+    "title": "Organiser mon bureau",
+    "description": "Ranger les papiers et trier les fournitures.",
+    "completed": false
+  }
+]
