@@ -31,7 +31,7 @@ These instructions will guide you through setting up and running the application
 2.  **Start the Vue.js development server:**
     In a **separate** terminal window (also in the project's root directory), run:
     ```bash
-    npm run serve
+    npm run dev
     ```
     This command will start the Vue.js development server.
 
