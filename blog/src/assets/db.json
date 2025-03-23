@@ -1,0 +1,84 @@
+{
+  "posts": [
+    {
+      "id": "1",
+      "title": "Getting Started with Vue 3",
+      "content": "Vue 3 introduces the Composition API, better TypeScript support, and improved performance. In this guide, we'll walk through setting up a new Vue 3 project, creating components, and using reactive state management. You'll learn about setup(), ref(), and reactive() functions that form the core of the Composition API. We'll also explore the new script setup syntax that makes Single File Components even more concise.",
+      "tags": [
+        "vue",
+        "frontend",
+        "beginners"
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Mastering Vue Router",
+      "content": "Vue Router is essential for building single-page applications. Learn advanced patterns like route guards, lazy loading routes, and nested routes. We'll cover dynamic routing with parameters, programmatic navigation, and how to handle 404 pages. Discover best practices for organizing large routing configurations and protecting routes with authentication.",
+      "tags": [
+        "vue",
+        "router",
+        "web"
+      ]
+    },
+    {
+      "id": "3",
+      "title": "State Management with Pinia",
+      "content": "Pinia is Vue's official state management library. We'll compare it to Vuex and demonstrate how to create stores, manage complex state, and handle asynchronous actions. Learn about the setup syntax, store composition, and persistence strategies. Includes examples of using stores in components and with TypeScript.",
+      "tags": [
+        "vue",
+        "pinia",
+        "state-management"
+      ]
+    },
+    {
+      "id": "4",
+      "title": "JavaScript ES2023 Features",
+      "content": "Explore the latest JavaScript features including array find-from-last, Hashbang grammar, and symbols as WeakMap keys. Learn how to use these new capabilities in your Vue applications and polyfill strategies for older browsers. We'll cover practical examples and gotchas to watch out for.",
+      "tags": [
+        "javascript",
+        "es2023",
+        "web-development"
+      ]
+    },
+    {
+      "id": "5",
+      "title": "Responsive CSS Grid Layouts",
+      "content": "Create modern responsive layouts using CSS Grid. Learn about grid-template-areas, fractional units, and media queries. We'll build a blog layout that adapts from mobile to desktop, covering common patterns like card grids and holy grail layouts. Includes tips for browser compatibility and fallback strategies.",
+      "tags": [
+        "css",
+        "responsive-design",
+        "layout"
+      ]
+    },
+    {
+      "id": "6",
+      "title": "Optimizing Vue App Performance",
+      "content": "Boost your Vue app's speed with these optimization techniques: lazy loading components, virtual scrolling, memoization, and efficient reactivity. We'll analyze performance using Chrome DevTools and Vue Devtools. Learn when to use v-once, v-memo, and when to optimize re-renders.",
+      "tags": [
+        "vue",
+        "performance",
+        "optimization"
+      ]
+    },
+    {
+      "id": "7",
+      "title": "Building REST APIs with Express",
+      "content": "Create a Node.js backend for your Vue frontend. This tutorial covers Express setup, RESTful routing, middleware, and MongoDB integration. Learn about JWT authentication, error handling, and API documentation with Swagger. Perfect for full-stack Vue developers.",
+      "tags": [
+        "nodejs",
+        "express",
+        "backend"
+      ]
+    },
+    {
+      "id": "8",
+      "title": "Testing Vue Components with Vitest",
+      "content": "Set up Vitest for unit testing Vue components. Learn to test props, events, slots, and async behavior. We'll cover component mounting options, mocking API calls, and snapshot testing. Includes examples for testing Pinia stores and Vue Router interactions.",
+      "tags": [
+        "vue",
+        "testing",
+        "vitest"
+      ]
+    }
+  ]
+}
