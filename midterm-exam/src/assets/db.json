@@ -1,0 +1,174 @@
+{
+    "books": [
+        {
+            "id": 1,
+            "titre": "Les Misérables",
+            "auteur": "Victor Hugo",
+            "annee": 1862,
+            "categorie": "Roman",
+            "status": true,
+            "image": "https://www.bing.com/ck/a?!&&p=6734ea0bea6d2124b933e7c3fe8a568e1c49734dea92e0bf6f6fcaa4f97e4a7aJmltdHM9MTc0Mjc3NDQwMA&ptn=3&ver=2&hsh=4&fclid=20e37bb3-55ba-6106-309e-6f67546760fd&u=a1L2ltYWdlcy9zZWFyY2g_cT1ib29rJTIwaW1hZ2VzJkZPUk09SVFGUkJBJmlkPTA2NEY0RUU2QjEwQ0JCQTUwQzEyMTJBOTdFOENDOTg0Qzc3RTk5QUQ&ntb=1",
+            "resume": "Un roman historique qui suit la vie de Jean Valjean et les luttes sociales en France."
+        },
+        {
+            "id": 2,
+            "titre": "Le Comte de Monte-Cristo",
+            "auteur": "Alexandre Dumas",
+            "annee": 1844,
+            "categorie": "Roman",
+            "status": false,
+            "image": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Comte_de_Monte-Cristo_1.jpg",
+            "resume": "L'histoire d'Edmond Dantès, trahi et emprisonné, qui cherche à se venger."
+        },
+        {
+            "id": 3,
+            "titre": "Madame Bovary",
+            "auteur": "Gustave Flaubert",
+            "annee": 1857,
+            "categorie": "Roman",
+            "status": true,
+            "image": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Madame_Bovary_1857_%28hi-res%29.jpg",
+            "resume": "Emma Bovary, insatisfaite de sa vie de province, cherche un amour idéal."
+        },
+        {
+            "id": 4,
+            "titre": "Germinal",
+            "auteur": "Émile Zola",
+            "annee": 1885,
+            "categorie": "Roman",
+            "status": false,
+            "image": "https://upload.wikimedia.org/wikipedia/commons/7/76/Zola_-_Germinal_1ere_edition.jpg",
+            "resume": "Une fresque sociale sur la vie des mineurs de charbon au XIXe siècle."
+        },
+        {
+            "id": 5,
+            "titre": "Notre-Dame de Paris",
+            "auteur": "Victor Hugo",
+            "annee": 1831,
+            "categorie": "Roman",
+            "status": true,
+            "image": "https://upload.wikimedia.org/wikipedia/commons/d/df/Hugo_-_Notre-Dame_de_Paris_1.jpg",
+            "resume": "Une histoire d'amour et de tragédie autour de la cathédrale Notre-Dame."
+        },
+        {
+            "id": 6,
+            "titre": "English Grammar in Use",
+            "auteur": "Raymond Murphy",
+            "annee": 1985,
+            "categorie": "Langues",
+            "status": true,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/51AaPjWop5L.jpg",
+            "resume": "Un livre de référence pour apprendre la grammaire anglaise."
+        },
+        {
+            "id": 7,
+            "titre": "Le Bon Usage",
+            "auteur": "Maurice Grevisse",
+            "annee": 1936,
+            "categorie": "Langues",
+            "status": false,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/51-Q+2M7h3L.jpg",
+            "resume": "Un livre détaillé sur la grammaire et l'usage du français."
+        },
+        {
+            "id": 8,
+            "titre": "Spanish for Dummies",
+            "auteur": "Susana Wald",
+            "annee": 2007,
+            "categorie": "Langues",
+            "status": true,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/51bUuwm2csL.jpg",
+            "resume": "Un guide pratique pour apprendre l'espagnol facilement."
+        },
+        {
+            "id": 9,
+            "titre": "Japanese for Busy People",
+            "auteur": "AJALT",
+            "annee": 1995,
+            "categorie": "Langues",
+            "status": false,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/51qxYoV5XhL.jpg",
+            "resume": "Un livre populaire pour apprendre le japonais de manière pratique."
+        },
+        {
+            "id": 10,
+            "titre": "Deutsch perfekt",
+            "auteur": "Sprachmagazin",
+            "annee": 2010,
+            "categorie": "Langues",
+            "status": true,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/51XtI9h9YDL.jpg",
+            "resume": "Un magazine et guide pour apprendre l'allemand."
+        },
+        {
+            "id": 11,
+            "titre": "Introduction to the Theory of Computation",
+            "auteur": "Michael Sipser",
+            "annee": 1996,
+            "categorie": "Computer Science",
+            "status": true,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/71pLxlKuCOL.jpg",
+            "resume": "Un livre sur la théorie des langages formels et des automates."
+        },
+        {
+            "id": 12,
+            "titre": "Computer Networking: A Top-Down Approach",
+            "auteur": "James F. Kurose, Keith W. Ross",
+            "annee": 2000,
+            "categorie": "Networking",
+            "status": false,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/81gtKOZ4pQL.jpg",
+            "resume": "Une introduction moderne aux réseaux informatiques."
+        },
+        {
+            "id": 13,
+            "titre": "Artificial Intelligence: A Modern Approach",
+            "auteur": "Stuart Russell, Peter Norvig",
+            "annee": 1995,
+            "categorie": "AI",
+            "status": true,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/81Gs9fwY3FL.jpg",
+            "resume": "Un des manuels de référence sur l'intelligence artificielle."
+        },
+        {
+            "id": 14,
+            "titre": "Linear Algebra and Its Applications",
+            "auteur": "Gilbert Strang",
+            "annee": 1976,
+            "categorie": "Mathematics",
+            "status": false,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/81tW+5vVe2L.jpg",
+            "resume": "Un livre fondamental sur l'algèbre linéaire appliquée."
+        },
+        {
+            "id": 15,
+            "titre": "Calculus",
+            "auteur": "James Stewart",
+            "annee": 1987,
+            "categorie": "Mathematics",
+            "status": true,
+            "image": "https://images-na.ssl-images-amazon.com/images/I/71mLktmJ0XL.jpg",
+            "resume": "Un des livres de calcul les plus utilisés en université."
+        },
+        {
+            "id": 16,
+            "titre": "Critique de la raison pure",
+            "auteur": "Immanuel Kant",
+            "annee": 1781,
+            "categorie": "Philosophy",
+            "status": true,
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Critique_of_Pure_Reason_%281781%29.jpg/800px-Critique_of_Pure_Reason_%281781%29.jpg",
+            "resume": "Un ouvrage philosophique majeur qui définit les limites de la connaissance humaine."
+        },
+        {
+            "id": 17,
+            "titre": "Ainsi parlait Zarathoustra",
+            "auteur": "Friedrich Nietzsche",
+            "annee": 1883,
+            "categorie": "Philosophy",
+            "status": false,
+            "image": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Ainsi_parlait_Zarathoustra.jpg",
+            "resume": "Un livre philosophique qui explore le concept du surhomme et la morale."
+        }
+    ]
+}
