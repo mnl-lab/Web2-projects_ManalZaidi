@@ -38,9 +38,7 @@ onMounted(() => {
             localStorage.setItem(REFRESH_TOKEN_KEY, response.data.refresh_token);
             localStorage.setItem(EXPIRATION_KEY, expirationTime);
 
-            // After successful login, fetch the user data and save to localStorage
-            const userProfile = await getCurrentUserProfile();
-            localStorage.setItem('user', JSON.stringify(userProfile));
+            
 
             return response.data;
         } catch (error) {
