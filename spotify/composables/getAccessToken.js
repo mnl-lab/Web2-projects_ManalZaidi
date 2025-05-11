@@ -3,7 +3,7 @@ import axios from 'axios'
 
 const TOKEN_URL     = 'https://accounts.spotify.com/api/token'
 const CLIENT_ID     = '49b1640e09494130aff858433399a770'
-const CLIENT_SECRET = import.meta.env.SPOTIFY_CLIENT_SECRET
+const CLIENT_SECRET = 'b14f913717014cb591dd706cf643ffde'
 const REDIRECT_URI  = 'https://fa24-197-230-122-196.ngrok-free.app/callback'
 
 export async function getAccessToken(code) {

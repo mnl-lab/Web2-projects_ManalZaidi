@@ -9,5 +9,12 @@ export default defineNuxtConfig({
     server: {
       allowedHosts: ['fa24-197-230-122-196.ngrok-free.app']
     }
+  },
+  runtimeConfig: {
+    spotifyClientSecret: process.env.NUXT_SPOTIFY_CLIENT_SECRET, // server only
+    public: {
+      spotifyClientId: process.env.NUXT_SPOTIFY_CLIENT_ID,
+      spotifyRedirectUri: process.env.NUXT_SPOTIFY_REDIRECT_URI,
+    }
   }
 })
