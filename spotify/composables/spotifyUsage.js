@@ -23,7 +23,7 @@ export async function fetchUserProfile() {
 
 // 🎧 Home Recommendations (simplified, using top tracks)
 export async function fetchRecommendedTracks() {
-  const { data } = await axios.get(`${BASE_URL}/me/top/tracks`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/me/top/tracks?limit=10`, authHeader())
   return data.items
 }
 
