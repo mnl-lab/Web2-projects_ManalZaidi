@@ -27,6 +27,11 @@ export async function fetchRecommendedTracks() {
   return data.items
 }
 
+export async function fetchTopArtists() {
+  const { data } = await axios.get(`${BASE_URL}/me/top/artists?limit=10`, authHeader())
+  return data.items
+}
+
 // 🔍 Search
 export async function searchSpotify(query, type = 'track,artist,album,playlist') {
   // Get user's market from profile for better relevance
