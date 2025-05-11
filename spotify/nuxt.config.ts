@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   css: ['bootstrap/dist/css/bootstrap.min.css'],
   vite: {
     server: {
-      allowedHosts: ['93a0-197-230-122-196.ngrok-free.app']
+      allowedHosts: ['fa24-197-230-122-196.ngrok-free.app']
     }
   }
 })
