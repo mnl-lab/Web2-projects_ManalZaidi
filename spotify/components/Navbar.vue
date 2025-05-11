@@ -34,15 +34,10 @@ const user = ref(null);
 const searchQuery = ref('');
 
 const search = () => {
-    if (searchQuery.value.trim()) {
-        searchSpotify(searchQuery.value)
-            .then(results => {
-                console.log('Search results:', results);
-            })
-            .catch(error => {
-                console.error('Error searching Spotify:', error);
-            });
-    }
+    router.push({
+        path: '/search',
+        query: { q: searchQuery.value.trim() }
+    });
 }
 
 onMounted(async () => {
@@ -76,6 +71,12 @@ const logout = () => {
     color: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     gap: 1.5rem;
+    width: 100%;
+    
+    right: 0;
+    top: 0;
+    z-index: 1000;
+    margin-bottom: 2rem;
 }
 
 .navbar-left {

@@ -9,7 +9,7 @@
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">Recommended Tracks</h2>
-                    <a href="#" class="section-link">Show all</a>
+                   
                 </div>
 
                 <div v-if="loadingTracks" class="loading">
