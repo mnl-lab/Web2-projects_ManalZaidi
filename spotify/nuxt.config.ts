@@ -4,7 +4,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/eslint'],
   pages: true,
-  css: ['bootstrap/dist/css/bootstrap.min.css'],
+  css: [
+    'bootstrap/dist/css/bootstrap.min.css',
+    'bootstrap-icons/font/bootstrap-icons.css',
+    '~/assets/css/main.css'
+  ],
   vite: {
     server: {
       allowedHosts: ['fa24-197-230-122-196.ngrok-free.app']

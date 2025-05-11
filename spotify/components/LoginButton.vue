@@ -1,5 +1,8 @@
 <template>
-    <button class="btn btn-primary" @click="loginWithSpotify">Login with Spotify</button>
+    <button class="login-btn" @click="loginWithSpotify">
+        <span class="login-icon"><i class="bi bi-spotify"></i></span>
+        <span class="login-text">Login with Spotify</span>
+    </button>
 </template>
 
 <script setup>
@@ -22,3 +25,46 @@ const loginWithSpotify = () => {
 }
 
 </script>
+
+<style scoped>
+:root {
+    /* Spotify Color Palette */
+    --color-light-purple: #D3BBC1;
+    --color-medium-purple: #582A40;
+    --color-dark-purple: #371D33;
+    --color-charcoal: #271B2C;
+    --color-black: #161925;
+}
+
+.login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-medium-purple);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.login-btn:hover {
+    background-color: var(--color-light-purple);
+    color: var(--color-black);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.login-icon {
+    margin-right: 10px;
+    font-size: 1.3rem;
+}
+
+.login-text {
+    letter-spacing: 0.5px;
+}
+</style>

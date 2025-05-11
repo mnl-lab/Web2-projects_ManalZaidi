@@ -1,8 +1,29 @@
 <template>
     <div>
-        <h1>About Sptf App</h1>
-        <p>This is a simple app to demonstrate Spotify API integration.</p>
-        <p>It allows you to login with your Spotify account and access your playlists.</p>
-        <p>Built with Vue 3 and Nuxt 3.</p>
+        <navbar></navbar>
     </div>
 </template>
+
+
+
+<script setup>
+import { useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue';
+import { fetchUserProfile } from '#imports';
+const route = useRouter();
+
+const user = ref(null);
+
+
+
+onMounted(async () => {
+    const user = await fetchUserProfile()
+
+  console.log('Username:', user.display_name)
+  console.log('User ID:', user.id)
+  console.log('Profile image:', user.images?.[0]?.url || 'No image')
+})
+
+
+
+</script>
