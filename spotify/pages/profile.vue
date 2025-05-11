@@ -75,7 +75,7 @@ onMounted(async () => {
 
 .loading-spinner {
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db;
+    border-top: 4px solid var(--color-light-purple);
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -162,10 +162,10 @@ onMounted(async () => {
 }
 
 h1, h2 {
-    color: #2c3e50;
+    color: var(--color-light-purple);
 }
 
-p {
+p, h5 {
     color: #7f8c8d;
 }
 </style>
