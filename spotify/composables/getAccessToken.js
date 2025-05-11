@@ -21,10 +21,13 @@ export async function getAccessToken(code) {
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     )
 
-    const expiresAt = Date.now() + data.expires_in * 1000
-    localStorage.setItem('spotify_token',         data.access_token)
-    localStorage.setItem('spotify_refresh_token', data.refresh_token)
-    localStorage.setItem('spotify_expires_at',    expiresAt)
+    // Only access localStorage on the client side
+    if (process.client) {
+      const expiresAt = Date.now() + data.expires_in * 1000
+      localStorage.setItem('spotify_token',         data.access_token)
+      localStorage.setItem('spotify_refresh_token', data.refresh_token)
+      localStorage.setItem('spotify_expires_at',    expiresAt)
+    }
     return data
   } catch (error) {
     if (error.response) {

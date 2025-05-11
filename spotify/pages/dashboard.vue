@@ -9,7 +9,7 @@
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">Recommended Tracks</h2>
-                   
+
                 </div>
 
                 <div v-if="loadingTracks" class="loading">
@@ -91,6 +91,10 @@
                 </div>
             </div> -->
         </div>
+        <!-- <div v-if="accessToken">
+            <audio-player :accessToken="accessToken"></audio-player>
+
+        </div> -->
     </div>
 </template>
 
@@ -100,11 +104,24 @@ import { onMounted, ref } from 'vue';
 import {
     fetchUserProfile,
     fetchRecommendedTracks,
-    fetchUserPlaylists
+    fetchUserPlaylists,
+    getStoredAccessToken
 } from '#imports';
 
 const router = useRouter();
 const user = ref(null);
+const accessToken = ref(null);
+
+// Only check token on client-side
+if (process.client) {
+    accessToken.value = getStoredAccessToken();
+    if (!accessToken.value) {
+        router.push('/');
+    }
+    else {
+        console.log('Access token available:', !!accessToken.value);
+    }
+}
 
 // Tracks
 const recommendedTracks = ref([]);
@@ -176,7 +193,19 @@ const refreshPlaylists = (newPlaylist) => {
 };
 
 onMounted(async () => {
+    // Skip initialization on server-side rendering
+    if (!process.client) return;
+
     try {
+        // Check token once - no need to create a new ref here
+        accessToken.value = getStoredAccessToken();
+        if (!accessToken.value) {
+            console.error('No access token available');
+            router.push('/');
+            return;
+        }
+
+        // Load user profile
         user.value = await fetchUserProfile();
         console.log('User profile loaded:', user.value.display_name);
 
@@ -367,8 +396,7 @@ onMounted(async () => {
 
     /* For large screens, allow multiple rows in the non-scrolling view */
     .tracks-grid,
-    .playlists-grid
-     {
+    .playlists-grid {
         flex-wrap: wrap;
         min-width: auto;
     }

@@ -41,7 +41,8 @@
                     </div>
                 </div>
                 <div class="tracks-grid" v-if="playlistTracks.length > 0">
-                    <track-card v-for="(track, index) in sortedTracks" :key="track.id || index" :track="track" />
+                    <track-card v-for="(track, index) in sortedTracks" :key="track.id || index" :track="track"
+                        :current-playlist-id="playlistId" @track-removed="handleTrackRemoved" />
                 </div>
                 <div v-else class="no-tracks">
                     <p>No tracks available in this playlist.</p>
@@ -93,12 +94,23 @@ const sortTracks = (option) => {
     }
 };
 
-onMounted(async () => {
+// Handle track removal from playlist
+const handleTrackRemoved = (trackId) => {
+    // Update local state by removing the track
+    playlistTracks.value = playlistTracks.value.filter(track => track.id !== trackId);
+
+    // Update the tracks count in the UI
+    if (playlistInfo.value) {
+        playlistInfo.value.tracks.total -= 1;
+    }
+};
+
+const loadPlaylistData = async () => {
     loading.value = true;
     error.value = null;
     try {
         playlistInfo.value = await fetchPlaylistInfo(playlistId);
-        if (!playlistInfo) {
+        if (!playlistInfo.value) {
             throw new Error('Failed to fetch playlist info');
         }
         playlistTracks.value = await fetchPlaylistTracks(playlistId);
@@ -106,9 +118,17 @@ onMounted(async () => {
             throw new Error('Failed to fetch playlist tracks');
         }
     } catch (err) {
+        console.error('Error loading playlist:', err);
         error.value = err;
     } finally {
         loading.value = false;
+    }
+};
+
+onMounted(() => {
+    // Only run on client-side
+    if (process.client) {
+        loadPlaylistData();
     }
 });
 </script>
@@ -117,6 +137,7 @@ onMounted(async () => {
 .container {
     padding: 20px;
     font-family: Arial, sans-serif;
+    height: 100%;
 }
 
 .loading-container {

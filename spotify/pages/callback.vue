@@ -11,18 +11,26 @@ import { getAccessToken } from '#imports'
 
 const router = useRouter()
 
-onMounted(() => {
-    const params = new URLSearchParams(window.location.search)
-
-    console.log('Code received in URL:', params.get('code'))
+onMounted(async () => {
+    // Ensure we're running on the client side
+    if (!process.client) return;
     
-    const accessToken = getAccessToken(params.get('code'));
-
-    if (accessToken) {
-        localStorage.setItem('spotify_token', accessToken)
-        router.replace('/dashboard')
-    } else {
-        console.error('No access token found in redirect.')
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    console.log('Code received in URL:', code)
+    
+    try {
+        if (code) {
+            await getAccessToken(code)
+            // No need to set token in localStorage as getAccessToken already does this
+            router.replace('/dashboard')
+        } else {
+            console.error('No authorization code found in URL')
+            router.replace('/')
+        }
+    } catch (error) {
+        console.error('Error during authentication:', error)
+        router.replace('/')
     }
 })
 </script>

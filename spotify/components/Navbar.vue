@@ -13,7 +13,8 @@
             </button>
         </div>
         <div class="profile">
-            <img :src="user?.images?.[0]?.url || '/defaultpfp.jpg'" alt="Profile Picture" class="profile-pic" @click="goToProfile"/>
+            <img :src="user?.images?.[0]?.url || '/defaultpfp.jpg'" alt="Profile Picture" class="profile-pic"
+                @click="goToProfile" />
             <div class="profile-name" @click="goToProfile">{{ user?.display_name }}</div>
         </div>
         <div class="logout">
@@ -41,14 +42,25 @@ const search = () => {
 }
 
 onMounted(async () => {
-    user.value = await fetchUserProfile();
+    if (process.client) {
+        try {
+            user.value = await fetchUserProfile();
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            // Handle error gracefully
+        }
+    }
 });
 const goToProfile = () => {
     router.push('/profile');
 }
 
 const logout = () => {
-    localStorage.removeItem('spotify_token');
+    if (process.client) {
+        localStorage.removeItem('spotify_token');
+        localStorage.removeItem('spotify_refresh_token');
+        localStorage.removeItem('spotify_expires_at');
+    }
     router.push('/');
 }
 </script>
@@ -72,7 +84,7 @@ const logout = () => {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     gap: 1.5rem;
     width: 100%;
-    
+
     right: 0;
     top: 0;
     z-index: 1000;
@@ -158,6 +170,7 @@ const logout = () => {
     object-fit: cover;
     border: 2px solid var(--color-medium-purple);
 }
+
 .profile-pic:hover {
     cursor: pointer;
     transform: scale(1.05);
@@ -169,6 +182,7 @@ const logout = () => {
     font-weight: bold;
     color: var(--color-light-purple);
 }
+
 .profile-name:hover {
     cursor: pointer;
     text-decoration: underline;

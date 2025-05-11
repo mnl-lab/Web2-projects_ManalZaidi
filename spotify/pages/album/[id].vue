@@ -33,9 +33,14 @@
                         <div class="header-item title">Title</div>
                         <div class="header-item duration">Duration</div>
                         <div class="header-item"></div>
-                    </div>
-                    <album-track v-for="(track, index) in albumTracks" :key="track.id || index" :track="track"
-                        :index="index" />
+                    </div> <album-track v-for="(track, index) in albumTracks" :key="track.id || index" :track="{
+                        ...track,
+                        album: {
+                            id: albumInfo?.id,
+                            name: albumInfo?.name,
+                            images: albumInfo?.images || []
+                        }
+                    }" :index="index" @track-added="handleTrackAdded" />
                 </div>
                 <div v-else class="no-tracks">
                     <p>No tracks available in this album.</p>
@@ -112,8 +117,17 @@ const fetchData = async (retryAttempt = 0) => {
     }
 };
 
+// Called when a track is successfully added to a playlist
+const handleTrackAdded = (data) => {
+    console.log('Track added to playlist:', data);
+    // We could add additional user feedback here if needed
+};
+
 onMounted(() => {
-    fetchData();
+    // Only run on client-side
+    if (process.client) {
+        fetchData();
+    }
 });
 </script>
 

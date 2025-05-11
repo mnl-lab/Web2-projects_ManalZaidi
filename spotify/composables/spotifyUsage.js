@@ -1,16 +1,24 @@
-// composables/useSpotify.js
+// composables/spotifyUsage.js
 import axios from 'axios'
 
 const BASE_URL = 'https://api.spotify.com/v1'
 const TOKEN_URL = 'https://accounts.spotify.com/api/token'
-const CLIENT_ID = '49b1640e09494130aff858433399a770'
 
-function getAccessToken() {
-  return localStorage.getItem('spotify_token')
+function getStoredAccessToken() {
+  // Check if we're in a browser environment
+  if (process.client) {
+    return localStorage.getItem('spotify_token')
+  }
+  return null
 }
 
 // Check if token is expired and refresh if needed
 async function checkAndRefreshToken() {
+  // Skip token checks on server-side
+  if (!process.client) {
+    return null;
+  }
+  
   const expiresAt = localStorage.getItem('spotify_expires_at')
   // If token expires in less than 5 minutes (or is expired), refresh it
   if (!expiresAt || Date.now() > (parseInt(expiresAt) - 300000)) {
@@ -26,16 +34,18 @@ async function checkAndRefreshToken() {
         if (!response.data || !response.data.access_token) {
           throw new Error('Invalid token response');
         }
-        
-        // Update stored tokens
+          // Update stored tokens only on client-side
         const data = response.data;
         const newExpiresAt = Date.now() + (data.expires_in * 1000);
-        localStorage.setItem('spotify_token', data.access_token);
-        localStorage.setItem('spotify_expires_at', newExpiresAt);
         
-        // If a new refresh token is provided (optional), update it as well
-        if (data.refresh_token) {
-          localStorage.setItem('spotify_refresh_token', data.refresh_token);
+        if (process.client) {
+          localStorage.setItem('spotify_token', data.access_token);
+          localStorage.setItem('spotify_expires_at', newExpiresAt);
+          
+          // If a new refresh token is provided (optional), update it as well
+          if (data.refresh_token) {
+            localStorage.setItem('spotify_refresh_token', data.refresh_token);
+          }
         }
         
         console.log('Token refreshed successfully!');
@@ -44,24 +54,29 @@ async function checkAndRefreshToken() {
         console.error('Failed to refresh token:', error);
         
         // As a fallback, try directly with Spotify API
-        try {
+        try {          // Use client side refresh as a fallback only
+          const CLIENT_ID = '49b1640e09494130aff858433399a770'
+          const CLIENT_SECRET = 'b14f913717014cb591dd706cf643ffde'
+          
           const { data } = await axios.post(
             TOKEN_URL,
             new URLSearchParams({
               grant_type: 'refresh_token',
               refresh_token: refreshToken,
-              client_id: CLIENT_ID
+              client_id: CLIENT_ID,
+              client_secret: CLIENT_SECRET
             }),
             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
           );
-          
-          // Update stored tokens
+            // Update stored tokens
           const newExpiresAt = Date.now() + (data.expires_in * 1000);
-          localStorage.setItem('spotify_token', data.access_token);
-          localStorage.setItem('spotify_expires_at', newExpiresAt);
-          
-          if (data.refresh_token) {
-            localStorage.setItem('spotify_refresh_token', data.refresh_token);
+          if (process.client) {
+            localStorage.setItem('spotify_token', data.access_token);
+            localStorage.setItem('spotify_expires_at', newExpiresAt);
+            
+            if (data.refresh_token) {
+              localStorage.setItem('spotify_refresh_token', data.refresh_token);
+            }
           }
           
           console.log('Token refreshed using fallback method');
@@ -80,7 +95,7 @@ async function checkAndRefreshToken() {
       return null;
     }
   }
-  return getAccessToken()
+  return getStoredAccessToken()
 }
 
 async function authHeader() {
@@ -284,6 +299,8 @@ export async function searchSpotify(query, type = 'track,artist,album,playlist')
       })
       .slice(0, 10);
   }
-
   return data;
 }
+
+// Export the getStoredAccessToken function
+export { getStoredAccessToken }
