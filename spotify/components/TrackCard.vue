@@ -1,5 +1,5 @@
 <template>
-    <div class="track-card" @click="navigateToTrack">
+    <div class="track-card" @click="navigateToTrackAlbum">
         <div class="track-image">
             <img :src="track.album.images[0]?.url || '/default-album.jpg'" alt="Album Cover" />
             <div class="play-overlay">
@@ -15,8 +15,9 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps , ref , onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { fetchTrackInfo } from '#imports';
 
 const props = defineProps({
     track: {
@@ -24,13 +25,20 @@ const props = defineProps({
         required: true
     }
 });
-
+const trackInfo = ref(null);
 const router = useRouter();
 
-const navigateToTrack = () => {
+const navigateToTrackAlbum = () => {
     // Navigate to the song detail page
-    router.push(`/song/${props.track.id}`);
+    router.push(`/album/${trackInfo.value.album.id}`);
 }
+onMounted(async () => {
+    try {
+        trackInfo.value = await fetchTrackInfo(props.track.id);
+    } catch (error) {
+        console.error('Error fetching track info:', error);
+    }
+});
 </script>
 
 <style scoped>

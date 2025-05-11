@@ -144,6 +144,13 @@ export async function removeTrackFromPlaylist(playlistId, trackUri) {
     ...(await authHeader())
   })
 }
+
+// get track info
+export async function fetchTrackInfo(trackId) {
+  const { data } = await axios.get(`${BASE_URL}/tracks/${trackId}`, await authHeader())
+  return data
+}
+
 // get playlist info
 export async function fetchPlaylistInfo(playlistId) {
   const { data } = await axios.get(`${BASE_URL}/playlists/${playlistId}`, await authHeader())

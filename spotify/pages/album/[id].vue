@@ -1,5 +1,7 @@
 <template>
     <div class="container">
+        <!-- Add Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <navbar />
         <div v-if="loading">
             <div class="loading-container">
@@ -21,13 +23,19 @@
                     <p>Tracks: {{ albumTracks.length }}</p>
                 </div>
             </div>
-
             <div class="tracks-list">
                 <div class="track-header">
                     <h2>Tracks</h2>
                 </div>
-                <div class="tracks-grid" v-if="albumTracks.length > 0">
-                    <track-card v-for="(track, index) in displayTracks" :key="track.id || index" :track="track" />
+                <div class="tracks-table" v-if="albumTracks.length > 0">
+                    <div class="tracks-table-header">
+                        <div class="header-item">#</div>
+                        <div class="header-item title">Title</div>
+                        <div class="header-item duration">Duration</div>
+                        <div class="header-item"></div>
+                    </div>
+                    <album-track v-for="(track, index) in albumTracks" :key="track.id || index" :track="track"
+                        :index="index" />
                 </div>
                 <div v-else class="no-tracks">
                     <p>No tracks available in this album.</p>
@@ -163,30 +171,33 @@ onMounted(() => {
 
 .album-info {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 20px;
     background-color: var(--color-charcoal);
-    padding: 20px;
-    padding-left: 5%;
-    padding-right: 5%;
+    padding: 40px 5%;
     border-radius: 10px;
 }
 
 .album-cover {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
     border-radius: 10px;
-    margin-right: 20px;
+    margin-right: 30px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .text-info h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 32px;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 8px;
 }
 
 .text-info p {
     margin: 5px 0;
-    color: #555;
+    color: #b3b3b3;
+    font-size: 14px;
 }
 
 .tracks-list {
@@ -200,15 +211,38 @@ onMounted(() => {
     margin-bottom: 10px;
 }
 
-.tracks-grid {
+.tracks-table {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.tracks-table-header {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: 40px 1fr 80px 60px;
+    padding: 0 16px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 8px;
+}
+
+.header-item {
+    color: #b3b3b3;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.header-item.title {
+    margin-left: 0;
+}
+
+.header-item.duration {
+    text-align: right;
 }
 
 .no-tracks {
     text-align: center;
     color: #777;
+    margin-top: 20px;
 }
 
 h2 {
