@@ -29,11 +29,75 @@ export async function fetchRecommendedTracks() {
 
 // 🔍 Search
 export async function searchSpotify(query, type = 'track,artist,album,playlist') {
+  // Get user's market from profile for better relevance
+  let market = 'US'; // Default market
+  try {
+    const profileData = await fetchUserProfile();
+    if (profileData && profileData.country) {
+      market = profileData.country;
+    }
+  } catch (error) {
+    console.warn('Could not get user market, using default', error);
+  }
+
+  // Make search request with additional parameters for relevance
   const { data } = await axios.get(
-    `${BASE_URL}/search?q=${encodeURIComponent(query)}&type=${type}&limit=10`,
+    `${BASE_URL}/search?q=${encodeURIComponent(query)}&type=${type}&limit=20&market=${market}&include_external=audio`,
     authHeader()
   )
-  return data
+
+  // Post-process results to filter out low relevance items
+  if (data.tracks && data.tracks.items) {
+    // Filter tracks by relevance and popularity
+    const minPopularity = 20; // Minimum popularity threshold
+    data.tracks.items = data.tracks.items
+      .filter(track => track.popularity >= minPopularity)
+      .filter(track => {
+        const queryLower = query.toLowerCase();
+        const trackNameLower = track.name.toLowerCase();
+        const artistNameLower = track.artists[0]?.name.toLowerCase() || '';
+        
+        // Keep tracks that have a strong match with the query
+        return trackNameLower.includes(queryLower) || 
+               artistNameLower.includes(queryLower) ||
+               queryLower.includes(trackNameLower) ||
+               queryLower.includes(artistNameLower);
+      })
+      .slice(0, 10); // Limit to 10 most relevant results
+  }
+
+  if (data.artists && data.artists.items) {
+    // Filter artists by relevance and popularity
+    data.artists.items = data.artists.items
+      .filter(artist => artist.popularity >= 30) // Artists need higher popularity
+      .filter(artist => {
+        const queryLower = query.toLowerCase();
+        const artistNameLower = artist.name.toLowerCase();
+        
+        // Keep artists with strong name match
+        return artistNameLower.includes(queryLower) || 
+               queryLower.includes(artistNameLower);
+      })
+      .slice(0, 10);
+  }
+
+  if (data.albums && data.albums.items) {
+    // Filter albums by relevance
+    data.albums.items = data.albums.items
+      .filter(album => {
+        const queryLower = query.toLowerCase();
+        const albumNameLower = album.name.toLowerCase();
+        const artistNameLower = album.artists[0]?.name.toLowerCase() || '';
+        
+        return albumNameLower.includes(queryLower) || 
+               artistNameLower.includes(queryLower) ||
+               queryLower.includes(albumNameLower) ||
+               queryLower.includes(artistNameLower);
+      })
+      .slice(0, 10);
+  }
+
+  return data;
 }
 
 // 📂 User Playlists
