@@ -2,40 +2,117 @@
 import axios from 'axios'
 
 const BASE_URL = 'https://api.spotify.com/v1'
+const TOKEN_URL = 'https://accounts.spotify.com/api/token'
+const CLIENT_ID = '49b1640e09494130aff858433399a770'
 
 function getAccessToken() {
   return localStorage.getItem('spotify_token')
 }
 
-function authHeader() {
+// Check if token is expired and refresh if needed
+async function checkAndRefreshToken() {
+  const expiresAt = localStorage.getItem('spotify_expires_at')
+  // If token expires in less than 5 minutes (or is expired), refresh it
+  if (!expiresAt || Date.now() > (parseInt(expiresAt) - 300000)) {
+    const refreshToken = localStorage.getItem('spotify_refresh_token')
+    if (refreshToken) {
+      try {
+        // Use our server endpoint to refresh the token (more secure)
+        // This way we don't expose client secret in the frontend
+        const response = await axios.post('/api/spotify/refresh', { 
+          refresh_token: refreshToken 
+        });
+        
+        if (!response.data || !response.data.access_token) {
+          throw new Error('Invalid token response');
+        }
+        
+        // Update stored tokens
+        const data = response.data;
+        const newExpiresAt = Date.now() + (data.expires_in * 1000);
+        localStorage.setItem('spotify_token', data.access_token);
+        localStorage.setItem('spotify_expires_at', newExpiresAt);
+        
+        // If a new refresh token is provided (optional), update it as well
+        if (data.refresh_token) {
+          localStorage.setItem('spotify_refresh_token', data.refresh_token);
+        }
+        
+        console.log('Token refreshed successfully!');
+        return data.access_token;
+      } catch (error) {
+        console.error('Failed to refresh token:', error);
+        
+        // As a fallback, try directly with Spotify API
+        try {
+          const { data } = await axios.post(
+            TOKEN_URL,
+            new URLSearchParams({
+              grant_type: 'refresh_token',
+              refresh_token: refreshToken,
+              client_id: CLIENT_ID
+            }),
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+          );
+          
+          // Update stored tokens
+          const newExpiresAt = Date.now() + (data.expires_in * 1000);
+          localStorage.setItem('spotify_token', data.access_token);
+          localStorage.setItem('spotify_expires_at', newExpiresAt);
+          
+          if (data.refresh_token) {
+            localStorage.setItem('spotify_refresh_token', data.refresh_token);
+          }
+          
+          console.log('Token refreshed using fallback method');
+          return data.access_token;
+        } catch (fallbackError) {
+          console.error('Both token refresh methods failed:', fallbackError);
+          // If refresh fails, redirect to login
+          window.location.href = '/';
+          return null;
+        }
+      }
+    } else {
+      // No refresh token, redirect to login
+      console.error('No refresh token available');
+      window.location.href = '/';
+      return null;
+    }
+  }
+  return getAccessToken()
+}
+
+async function authHeader() {
+  const token = await checkAndRefreshToken()
   return {
     headers: {
-      Authorization: `Bearer ${getAccessToken()}`
+      Authorization: `Bearer ${token}`
     }
   }
 }
 
 // 🎵 User Profile
 export async function fetchUserProfile() {
-  const { data } = await axios.get(`${BASE_URL}/me`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/me`, await authHeader())
   return data
 }
 
 // 🎧 Home Recommendations (simplified, using top tracks)
 export async function fetchRecommendedTracks() {
-  const { data } = await axios.get(`${BASE_URL}/me/top/tracks?limit=10`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/me/top/tracks?limit=10`, await authHeader())
   return data.items
 }
 
 export async function fetchTopArtists() {
-  const { data } = await axios.get(`${BASE_URL}/me/top/artists?limit=10`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/me/top/artists?limit=10`, await authHeader())
   return data.items
 }
 
 
 // 📂 User Playlists
 export async function fetchUserPlaylists() {
-  const { data } = await axios.get(`${BASE_URL}/me/playlists?limit=10`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/me/playlists?limit=10`, await authHeader())
   return data.items
 }
 
@@ -44,7 +121,7 @@ export async function createPlaylist(userId, name, description = '') {
   const { data } = await axios.post(
     `${BASE_URL}/users/${userId}/playlists`,
     { name, description, public: false },
-    authHeader()
+    await authHeader()
   )
   return data
 }
@@ -54,7 +131,7 @@ export async function addTrackToPlaylist(playlistId, trackUri) {
   await axios.post(
     `${BASE_URL}/playlists/${playlistId}/tracks`,
     { uris: [trackUri] },
-    authHeader()
+    await authHeader()
   )
 }
 
@@ -64,63 +141,72 @@ export async function removeTrackFromPlaylist(playlistId, trackUri) {
     method: 'DELETE',
     url: `${BASE_URL}/playlists/${playlistId}/tracks`,
     data: { tracks: [{ uri: trackUri }] },
-    ...authHeader()
+    ...(await authHeader())
   })
 }
 // get playlist info
 export async function fetchPlaylistInfo(playlistId) {
-  const { data } = await axios.get(`${BASE_URL}/playlists/${playlistId}`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/playlists/${playlistId}`, await authHeader())
   return data
 }
 
 
 // get playlist tracks
 export async function fetchPlaylistTracks(playlistId) {
-  const { data } = await axios.get(`${BASE_URL}/playlists/${playlistId}/tracks`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/playlists/${playlistId}/tracks`, await authHeader())
   return data.items.map(item => ({
     ...item.track,
     added_at: item.added_at  // Keep the added_at property
   }))
 }
+// get album info
+export async function fetchAlbumInfo(albumId) {
+  try {
+    const headers = await authHeader();
+    const { data } = await axios.get(`${BASE_URL}/albums/${albumId}`, headers);
+    return data;
+  } catch (error) {
+    console.error(`Error fetching album info for ID ${albumId}:`, error);
+    // Rethrow to let the caller handle it
+    throw error;
+  }
+}
+
+// get album tracks
+export async function fetchAlbumTracks(albumId) {
+  try {
+    const headers = await authHeader();
+    const { data } = await axios.get(`${BASE_URL}/albums/${albumId}/tracks`, headers);
+    return data.items || [];
+  } catch (error) {
+    console.error(`Error fetching tracks for album ID ${albumId}:`, error);
+    // Rethrow to let the caller handle it
+    throw error;
+  }
+}
 
 export async function pausePlayback() {
-  await axios.put(`${BASE_URL}/me/player/pause`, null, authHeader())
+  await axios.put(`${BASE_URL}/me/player/pause`, null, await authHeader())
 }
 
 export async function skipToNext() {
-  await axios.post(`${BASE_URL}/me/player/next`, null, authHeader())
+  await axios.post(`${BASE_URL}/me/player/next`, null, await authHeader())
 }
 
 export async function skipToPrevious() {
-  await axios.post(`${BASE_URL}/me/player/previous`, null, authHeader())
+  await axios.post(`${BASE_URL}/me/player/previous`, null, await authHeader())
 }
 
 export async function fetchCurrentlyPlaying() {
-  const { data } = await axios.get(`${BASE_URL}/me/player/currently-playing`, authHeader())
+  const { data } = await axios.get(`${BASE_URL}/me/player/currently-playing`, await authHeader())
   return data
 }
 
-// 💿 User's Saved Albums
-export async function fetchUserAlbums(limit = 10) {
-  try {
-    const { data } = await axios.get(`${BASE_URL}/me/albums?limit=${limit}`, authHeader())
-    return data.items ? data.items.map(item => item.album) : []
-  } catch (error) {
-    console.error('Error fetching user albums:', error)
-    // Fallback to using user's top artists for demo purposes
-    // This is in case the user doesn't have saved albums or the API endpoint isn't working
-    const { data } = await axios.get(`${BASE_URL}/me/top/artists?limit=${limit}`, authHeader())
-    // Transform artists to album-like objects for UI compatibility
-    return data.items ? data.items.map(artist => ({
-      id: artist.id,
-      name: `Best of ${artist.name}`,
-      images: artist.images,
-      type: 'album',
-      artists: [artist],
-      description: `Music by ${artist.name}`
-    })) : []
-  }
-}
+// // 💿 User's Saved Albums
+// export async function fetchUserAlbums() {
+//   const { data } = await axios.get(`${BASE_URL}/me/albums?limit=10`, await authHeader())
+//   return data.items.map(item => item.album)
+// }
 
 // 🔍 Search
 export async function searchSpotify(query, type = 'track,artist,album,playlist') {
@@ -138,7 +224,7 @@ export async function searchSpotify(query, type = 'track,artist,album,playlist')
   // Make search request with additional parameters for relevance
   const { data } = await axios.get(
     `${BASE_URL}/search?q=${encodeURIComponent(query)}&type=${type}&limit=20&market=${market}&include_external=audio`,
-    authHeader()
+    await authHeader()
   )
 
   // Post-process results to filter out low relevance items

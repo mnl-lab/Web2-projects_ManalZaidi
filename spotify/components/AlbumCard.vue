@@ -1,15 +1,17 @@
 <template>
-    <div class="track-card" @click="navigateToTrack">
-        <div class="track-image">
-            <img :src="track.album.images[0]?.url || '/default-album.jpg'" alt="Album Cover" />
-            <div class="play-overlay">
+    <div class="album-card" @click="playalbum">
+        <div class="album-image-container">
+            <img :src="album?.images?.[0]?.url || '/default-album.jpg'" alt="album Image" class="album-image" />
+            <div class="play-overlay" @click="playalbum">
                 <i class="bi bi-play-fill"></i>
             </div>
         </div>
-        <div class="track-info">
-            <h3 class="track-name">{{ track.name }}</h3>
-            <p class="track-artist">{{ track.artists[0].name }}</p>
-            <p class="track-album">{{ track.album.name }}</p>
+        <div class="album-info">
+            <h3 class="album-title">{{ album?.name }}</h3>
+            <p class="album-description">{{ album?.description || `By ${album?.owner?.display_name}` }}</p>
+            <div class="album-meta">
+                <span>{{ album.tracks?.total || 0 }} tracks</span>
+            </div>
         </div>
     </div>
 </template>
@@ -19,22 +21,20 @@ import { defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
-    track: {
+    album: {
         type: Object,
         required: true
     }
 });
 
 const router = useRouter();
-
-const navigateToTrack = () => {
-    // Navigate to the song detail page
-    router.push(`/song/${props.track.id}`);
-}
+const playalbum = () => {
+    router.push(`/album/${props.album.id}`);
+};
 </script>
 
 <style scoped>
-.track-card {
+.album-card {
     display: flex;
     flex-direction: column;
     background-color: var(--background-secondary);
@@ -47,18 +47,18 @@ const navigateToTrack = () => {
     cursor: pointer;
 }
 
-.track-card:hover {
+.album-card:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.track-image {
+.album-image-container {
     position: relative;
     width: 100%;
     height: 156px;
     margin-bottom: 16px;
 }
 
-.track-image img {
+.album-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -83,7 +83,7 @@ const navigateToTrack = () => {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.track-card:hover .play-overlay {
+.album-card:hover .play-overlay {
     opacity: 1;
     transform: translateY(0);
 }
@@ -95,11 +95,11 @@ const navigateToTrack = () => {
     /* Center the triangle play icon */
 }
 
-.track-info {
+.album-info {
     padding: 0;
 }
 
-.track-name {
+.album-title {
     margin: 0;
     font-size: 0.9rem;
     font-weight: 700;
@@ -110,8 +110,7 @@ const navigateToTrack = () => {
     margin-bottom: 4px;
 }
 
-.track-artist,
-.track-album {
+.album-description {
     margin: 2px 0 0;
     font-size: 0.8rem;
     color: var(--text-secondary);
@@ -121,8 +120,11 @@ const navigateToTrack = () => {
     font-weight: 400;
 }
 
-.track-album {
+.album-meta {
+    margin-top: 5px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
     display: none;
-    /* Hide album name to match Spotify's design */
+    /* Hide the track count to match Spotify design */
 }
 </style>

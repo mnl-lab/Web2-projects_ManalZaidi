@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            <!-- User Albums Section -->
+            <!-- User Albums Section
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">Your Albums</h2>
@@ -86,10 +86,10 @@
 
                 <div v-else class="scrollable-container">
                     <div class="albums-grid">
-                        <playlist-card v-for="album in userAlbums" :key="album.id" :playlist="album"></playlist-card>
+                        <album-card v-for="album in userAlbums" :key="album.id" :album="album"></album-card>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -100,8 +100,7 @@ import { onMounted, ref } from 'vue';
 import {
     fetchUserProfile,
     fetchRecommendedTracks,
-    fetchUserPlaylists,
-    fetchUserAlbums
+    fetchUserPlaylists
 } from '#imports';
 
 const router = useRouter();
@@ -117,10 +116,10 @@ const userPlaylists = ref([]);
 const loadingPlaylists = ref(true);
 const playlistError = ref(null);
 
-// Albums
-const userAlbums = ref([]);
-const loadingAlbums = ref(true);
-const albumError = ref(null);
+// // Albums
+// const userAlbums = ref([]);
+// const loadingAlbums = ref(true);
+// const albumError = ref(null);
 
 const loadRecommendations = async () => {
     loadingTracks.value = true;
@@ -152,20 +151,20 @@ const loadPlaylists = async () => {
     }
 };
 
-const loadAlbums = async () => {
-    loadingAlbums.value = true;
-    albumError.value = null;
+// const loadAlbums = async () => {
+//     loadingAlbums.value = true;
+//     albumError.value = null;
 
-    try {
-        userAlbums.value = await fetchUserAlbums();
-        console.log('User albums loaded:', userAlbums.value.length);
-    } catch (err) {
-        console.error('Error fetching albums:', err);
-        albumError.value = 'Failed to load albums. Please try again later.';
-    } finally {
-        loadingAlbums.value = false;
-    }
-};
+//     try {
+//         userAlbums.value = await fetchUserAlbums();
+//         console.log('User albums loaded:', userAlbums.value.length);
+//     } catch (err) {
+//         console.error('Error fetching albums:', err);
+//         albumError.value = 'Failed to load albums. Please try again later.';
+//     } finally {
+//         loadingAlbums.value = false;
+//     }
+// };
 
 const refreshPlaylists = (newPlaylist) => {
     // Add the newly created playlist to the top of the list
@@ -184,8 +183,7 @@ onMounted(async () => {
         // Load all data in parallel
         await Promise.all([
             loadRecommendations(),
-            loadPlaylists(),
-            loadAlbums()
+            loadPlaylists()
         ]);
     } catch (err) {
         console.error('Error initializing dashboard:', err);
@@ -369,8 +367,8 @@ onMounted(async () => {
 
     /* For large screens, allow multiple rows in the non-scrolling view */
     .tracks-grid,
-    .playlists-grid,
-    .albums-grid {
+    .playlists-grid
+     {
         flex-wrap: wrap;
         min-width: auto;
     }
