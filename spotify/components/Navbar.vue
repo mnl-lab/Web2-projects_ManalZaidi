@@ -1,7 +1,7 @@
 <template>
     <div class="navbar-container">
         <div class="navbar-left">
-            <button class="home-button" @click="$router.push('/')">
+            <button class="home-button" @click="$router.push('/dashboard')">
                 <i class="bi bi-house-door-fill"></i>
             </button>
         </div>
@@ -12,13 +12,22 @@
                 <i class="bi bi-search"></i>
             </button>
         </div>
+        <div class="profile">
+            <img :src="user?.images?.[0]?.url || '/defaultpfp.jpg'" alt="Profile Picture" class="profile-pic" @click="goToProfile"/>
+            <div class="profile-name" @click="goToProfile">{{ user?.display_name }}</div>
+        </div>
+        <div class="logout">
+            <button class="logout-button" @click="logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
     </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { fetchUserProfile, searchSpotify, createPlaylist } from '#imports';
+import { fetchUserProfile, searchSpotify } from '#imports';
 const router = useRouter();
 
 const user = ref(null);
@@ -26,19 +35,31 @@ const searchQuery = ref('');
 
 const search = () => {
     if (searchQuery.value.trim()) {
-        router.push(`/search?q=${encodeURIComponent(searchQuery.value.trim())}`);
-        searchQuery.value = '';
+        searchSpotify(searchQuery.value)
+            .then(results => {
+                console.log('Search results:', results);
+            })
+            .catch(error => {
+                console.error('Error searching Spotify:', error);
+            });
     }
 }
 
 onMounted(async () => {
     user.value = await fetchUserProfile();
 });
+const goToProfile = () => {
+    router.push('/profile');
+}
+
+const logout = () => {
+    localStorage.removeItem('spotify_token');
+    router.push('/');
+}
 </script>
 
 <style scoped>
 :root {
-    /* Spotify Color Palette */
     --color-light-purple: #D3BBC1;
     --color-medium-purple: #582A40;
     --color-dark-purple: #371D33;
@@ -49,14 +70,16 @@ onMounted(async () => {
 .navbar-container {
     display: flex;
     align-items: center;
-    padding: 0.8rem 1.5rem;
+    justify-content: space-between;
+    padding: 1rem 2rem;
     background-color: var(--color-black);
     color: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    gap: 1.5rem;
 }
 
 .navbar-left {
-    margin-right: 1rem;
+    margin-right: 1.5rem;
 }
 
 .home-button {
@@ -65,7 +88,7 @@ onMounted(async () => {
     color: #ffffff;
     font-size: 1.5rem;
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.7rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -75,28 +98,29 @@ onMounted(async () => {
 
 .home-button:hover {
     background-color: var(--color-medium-purple);
-    transform: scale(1.05);
+    transform: scale(1.1);
 }
 
 .search-container {
     display: flex;
     align-items: center;
     flex: 1;
-    max-width: 400px;
+    max-width: 500px;
     position: relative;
     border-radius: 20px;
     background-color: var(--color-charcoal);
     overflow: hidden;
     border: 1px solid var(--color-dark-purple);
+    margin: 0 1rem;
 }
 
 .search-input {
     flex: 1;
     border: none;
-    padding: 0.7rem 1rem;
+    padding: 0.8rem 1rem;
     background-color: transparent;
     color: white;
-    font-size: 0.9rem;
+    font-size: 1rem;
     width: 100%;
     outline: none;
 }
@@ -110,7 +134,7 @@ onMounted(async () => {
     border: none;
     color: white;
     cursor: pointer;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     font-size: 1rem;
     transition: all 0.2s ease;
 }
@@ -118,5 +142,57 @@ onMounted(async () => {
 .search-button:hover {
     background-color: var(--color-light-purple);
     color: var(--color-black);
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-medium-purple);
+}
+.profile-pic:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.profile-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--color-light-purple);
+}
+.profile-name:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.logout {
+    margin-left: 1rem;
+}
+
+.logout-button {
+    background: var(--color-charcoal);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.6rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+    background-color: var(--color-medium-purple);
+    transform: scale(1.1);
 }
 </style>
