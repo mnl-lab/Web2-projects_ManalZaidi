@@ -40,77 +40,91 @@ const playPlaylist = () => {
     background-color: var(--background-secondary);
     border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    width: 200px;
-    margin: 10px;
+    transition: background-color 0.3s ease;
+    width: 180px;
+    min-width: 180px;
+    padding: 12px;
+    cursor: pointer;
 }
 
 .playlist-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .playlist-image-container {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 156px;
+    margin-bottom: 16px;
 }
 
 .playlist-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
 }
 
 .play-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    bottom: 8px;
+    right: 8px;
+    width: 48px;
+    height: 48px;
+    background-color: var(--color-medium-purple);
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transform: translateY(8px);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .playlist-card:hover .play-overlay {
     opacity: 1;
+    transform: translateY(0);
 }
 
 .play-overlay i {
-    font-size: 3rem;
+    font-size: 1.5rem;
     color: var(--color-white);
+    margin-left: 2px;
+    /* Center the triangle play icon */
 }
 
 .playlist-info {
-    padding: 15px;
+    padding: 0;
 }
 
 .playlist-title {
     margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 700;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 4px;
 }
 
 .playlist-description {
-    margin: 5px 0 0;
+    margin: 2px 0 0;
     font-size: 0.8rem;
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 400;
 }
 
 .playlist-meta {
-    margin-top: 8px;
+    margin-top: 5px;
     font-size: 0.7rem;
     color: var(--text-muted);
+    display: none;
+    /* Hide the track count to match Spotify design */
 }
 </style>
