@@ -2,7 +2,7 @@
     <div class="playlist-card" @click="playPlaylist">
         <div class="playlist-image-container">
             <img :src="playlist.images?.[0]?.url || '/default-album.jpg'" alt="Playlist Image" class="playlist-image" />
-            <div class="play-overlay" @click="playPlaylist">
+            <div class="play-overlay">
                 <i class="bi bi-play-fill"></i>
             </div>
         </div>
@@ -19,6 +19,8 @@
 <script setup>
 import { defineProps } from 'vue';
 import { useRouter } from 'vue-router';
+import { playPlaylist as spotifyPlayPlaylist } from '#imports';
+import { usePlayerStore } from '~/composables/usePlayerStore';
 
 const props = defineProps({
     playlist: {
@@ -28,8 +30,28 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const playPlaylist = () => {
-    router.push(`/playlists/${props.playlist.id}`);
+const playerStore = usePlayerStore();
+
+// Handle click on the playlist card
+const playPlaylist = (event) => {
+    // Check if the click was on the play button
+    if (event.target.closest('.play-overlay') || event.target.classList.contains('bi-play-fill')) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Use the store to track which playlist is playing
+        playerStore.playPlaylist(props.playlist.id);
+
+        // Call Spotify API to start playback of this playlist
+        spotifyPlayPlaylist(props.playlist.id)
+            .catch(error => {
+                console.error('Failed to play playlist:', error);
+                // You could add a toast or notification here
+            });
+    } else {
+        // Navigate to playlist page if not clicking the play button
+        router.push(`/playlists/${props.playlist.id}`);
+    }
 };
 </script>
 

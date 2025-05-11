@@ -19,6 +19,10 @@
                     <h1>{{ playlistInfo?.name }}</h1>
                     <p>By {{ playlistInfo?.owner?.display_name }}</p>
                     <p>Tracks: {{ playlistTracks.length }}</p>
+                    <button @click="playCurrentPlaylist" class="play-playlist-button">
+                        <i class="material-icons">play_circle_filled</i>
+                        Play Playlist
+                    </button>
                 </div>
             </div>
 
@@ -55,7 +59,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchPlaylistTracks, fetchPlaylistInfo } from '#imports';
+import { fetchPlaylistTracks, fetchPlaylistInfo, playPlaylist } from '#imports';
+import { usePlayerStore } from '~/composables/usePlayerStore';
 
 const route = useRoute();
 const playlistTracks = ref([]);
@@ -65,6 +70,24 @@ const error = ref(null);
 const playlistId = route.params.id;
 const sortOption = ref('date'); // Default sort option
 const sortDirection = ref('desc'); // Default sort direction: 'asc' or 'desc'
+const playerStore = usePlayerStore();
+
+// Play the current playlist
+const playCurrentPlaylist = async () => {
+    try {
+        // Update the player store
+        playerStore.playPlaylist(playlistId);
+
+        // Call the Spotify API to play the playlist
+        const success = await playPlaylist(playlistId);
+        if (!success) {
+            error.value = { message: "Failed to play playlist. Make sure you have an active Spotify device." };
+        }
+    } catch (err) {
+        console.error('Error playing playlist:', err);
+        error.value = { message: err.message || 'Failed to play playlist' };
+    }
+};
 
 const sortedTracks = computed(() => {
     const tracks = [...playlistTracks.value];
@@ -212,6 +235,28 @@ onMounted(() => {
 .text-info p {
     margin: 5px 0;
     color: #555;
+}
+
+.play-playlist-button {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-medium-purple);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    margin-top: 15px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.play-playlist-button:hover {
+    background-color: var(--color-light-purple);
+}
+
+.play-playlist-button i {
+    margin-right: 5px;
 }
 
 .tracks-list {

@@ -21,6 +21,10 @@
                     <p>By {{ albumInfo?.artists[0]?.name }}</p>
                     <p v-if="albumInfo?.release_date">Release Date: {{ formattedDate }}</p>
                     <p>Tracks: {{ albumTracks.length }}</p>
+                    <button @click="playCurrentAlbum" class="play-album-button">
+                        <i class="material-icons">play_circle_filled</i>
+                        Play Album
+                    </button>
                 </div>
             </div>
             <div class="tracks-list">
@@ -53,7 +57,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchAlbumInfo, fetchAlbumTracks } from '#imports';
+import { fetchAlbumInfo, fetchAlbumTracks, playAlbum } from '#imports';
+import { usePlayerStore } from '~/composables/usePlayerStore';
 
 const route = useRoute();
 const albumTracks = ref([]);
@@ -61,6 +66,24 @@ const albumInfo = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const albumId = route.params.id;
+const playerStore = usePlayerStore();
+
+// Play the current album
+const playCurrentAlbum = async () => {
+    try {
+        // Update the player store
+        playerStore.playAlbum(albumId);
+
+        // Call the Spotify API to play the album
+        const success = await playAlbum(albumId);
+        if (!success) {
+            error.value = "Failed to play album. Make sure you have an active Spotify device.";
+        }
+    } catch (err) {
+        console.error('Error playing album:', err);
+        error.value = err.message || 'Failed to play album';
+    }
+};
 
 // Reload page function
 const reload = () => {
@@ -193,25 +216,42 @@ onMounted(() => {
 }
 
 .album-cover {
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
     border-radius: 10px;
-    margin-right: 30px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    margin-right: 20px;
 }
 
 .text-info h1 {
     margin: 0;
-    font-size: 32px;
-    color: white;
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 24px;
 }
 
 .text-info p {
     margin: 5px 0;
-    color: #b3b3b3;
-    font-size: 14px;
+    color: #555;
+}
+
+.play-album-button {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-medium-purple);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    margin-top: 15px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.play-album-button:hover {
+    background-color: var(--color-light-purple);
+}
+
+.play-album-button i {
+    margin-right: 5px;
 }
 
 .tracks-list {

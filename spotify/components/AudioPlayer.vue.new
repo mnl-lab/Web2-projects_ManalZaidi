@@ -47,7 +47,7 @@ const playerStore = usePlayerStore();
 
 // Use the access token from the store or get it from storage
 const accessToken = computed(() => {
-  return playerStore.accessToken?.value || getStoredAccessToken();
+  return playerStore.accessToken || getStoredAccessToken();
 });
 
 // Reactive state for player
@@ -106,7 +106,7 @@ watch(
 
 // Watch for track changes
 watch(
-  () => playerStore.currentTrackUri?.value,
+  () => playerStore.currentTrackUri,
   async (newTrackUri) => {
     if (newTrackUri && deviceId.value) {
       await playOnDevice(deviceId.value, newTrackUri);
@@ -116,9 +116,9 @@ watch(
 
 // Watch for playlist changes
 watch(
-  () => playerStore.currentPlaylistId?.value,
+  () => playerStore.currentPlaylistId,
   async (newPlaylistId) => {
-    if (newPlaylistId && deviceId.value && playerStore.playbackType?.value === 'playlist') {
+    if (newPlaylistId && deviceId.value && playerStore.playbackType === 'playlist') {
       await playPlaylistOnDevice(deviceId.value, newPlaylistId);
     }
   }
@@ -126,9 +126,9 @@ watch(
 
 // Watch for album changes
 watch(
-  () => playerStore.currentAlbumId?.value,
+  () => playerStore.currentAlbumId,
   async (newAlbumId) => {
-    if (newAlbumId && deviceId.value && playerStore.playbackType?.value === 'album') {
+    if (newAlbumId && deviceId.value && playerStore.playbackType === 'album') {
       await playAlbumOnDevice(deviceId.value, newAlbumId);
     }
   }
@@ -158,8 +158,9 @@ function setupPlayer() {
     if (!state) return;
     isPlaying.value = !state.paused;
     currentTrack.value = state.track_window.current_track;
-      // Update the UI to show the player is active regardless of how playback was started
-    if (playerStore.playbackType?.value === 'none' && state.track_window.current_track) {
+    
+    // Update the UI to show the player is active regardless of how playback was started
+    if (playerStore.playbackType === 'none' && state.track_window.current_track) {
       playerStore.playTrack(`spotify:track:${state.track_window.current_track.id}`);
     }
   });

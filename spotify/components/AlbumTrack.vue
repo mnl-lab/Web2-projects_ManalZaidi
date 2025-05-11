@@ -54,7 +54,8 @@
 
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { fetchUserPlaylists, addTrackToPlaylist } from '#imports';
+import { fetchUserPlaylists, addTrackToPlaylist, playTrack as spotifyPlayTrack } from '#imports';
+import { usePlayerStore } from '~/composables/usePlayerStore';
 
 const props = defineProps({
   track: {
@@ -94,10 +95,21 @@ const formatDuration = (ms) => {
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
 
-const playTrack = () => {
-  // This function would handle playing the track
-  // It could emit an event that the parent component listens for
-  console.log('Play track:', props.track.name);
+// Get player store
+const playerStore = usePlayerStore();
+
+const playTrack = async () => {
+  // Construct the track URI
+  const trackUri = `spotify:track:${props.track.id}`;
+  
+  // Use the global player store to play this track
+  playerStore.playTrack(trackUri);
+  
+  // Also call the actual Spotify API function
+  const success = await spotifyPlayTrack(trackUri);
+  if (!success) {
+    showToast('Failed to play track. Make sure a Spotify device is active.', true);
+  }
 };
 
 // Only play track if we're not interacting with the dropdown

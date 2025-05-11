@@ -207,8 +207,88 @@ export async function fetchAlbumTracks(albumId) {
   }
 }
 
+// 🎮 Player Controls
 export async function pausePlayback() {
   await axios.put(`${BASE_URL}/me/player/pause`, null, await authHeader())
+}
+
+// Play a specific track
+export async function playTrack(trackUri, deviceId = null) {
+  try {
+    // If device ID is provided, play on that device
+    let endpoint = `${BASE_URL}/me/player/play`;
+    if (deviceId) {
+      endpoint += `?device_id=${deviceId}`;
+    }
+    
+    await axios.put(
+      endpoint,
+      { uris: [trackUri] },
+      await authHeader()
+    );
+    
+    return true;
+  } catch (error) {
+    console.error('Error playing track:', error);
+    if (error.response && error.response.status === 404) {
+      console.warn('No active device found. Make sure a Spotify player is active.');
+    }
+    return false;
+  }
+}
+
+// Play a playlist
+export async function playPlaylist(playlistId, deviceId = null) {
+  try {
+    // If device ID is provided, play on that device
+    let endpoint = `${BASE_URL}/me/player/play`;
+    if (deviceId) {
+      endpoint += `?device_id=${deviceId}`;
+    }
+    
+    await axios.put(
+      endpoint,
+      { 
+        context_uri: `spotify:playlist:${playlistId}`
+      },
+      await authHeader()
+    );
+    
+    return true;
+  } catch (error) {
+    console.error('Error playing playlist:', error);
+    if (error.response && error.response.status === 404) {
+      console.warn('No active device found. Make sure a Spotify player is active.');
+    }
+    return false;
+  }
+}
+
+// Play an album
+export async function playAlbum(albumId, deviceId = null) {
+  try {
+    // If device ID is provided, play on that device
+    let endpoint = `${BASE_URL}/me/player/play`;
+    if (deviceId) {
+      endpoint += `?device_id=${deviceId}`;
+    }
+    
+    await axios.put(
+      endpoint,
+      { 
+        context_uri: `spotify:album:${albumId}`
+      },
+      await authHeader()
+    );
+    
+    return true;
+  } catch (error) {
+    console.error('Error playing album:', error);
+    if (error.response && error.response.status === 404) {
+      console.warn('No active device found. Make sure a Spotify player is active.');
+    }
+    return false;
+  }
 }
 
 export async function skipToNext() {

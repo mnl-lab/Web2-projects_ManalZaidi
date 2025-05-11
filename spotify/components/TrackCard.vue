@@ -1,8 +1,9 @@
 <template>
     <div class="track-card">
-        <div class="track-image" @click="navigateToTrackAlbum">
-            <img :src="track.album.images[0]?.url || '/default-album.jpg'" alt="Album Cover" />
-            <div class="play-overlay">
+        <div class="track-image">
+            <img :src="track.album.images[0]?.url || '/default-album.jpg'" alt="Album Cover"
+                @click="navigateToTrackAlbum" />
+            <div class="play-overlay" @click.stop="playThisTrack">
                 <i class="bi bi-play-fill"></i>
             </div>
         </div>
@@ -80,7 +81,8 @@
 <script setup>
 import { defineProps, ref, onMounted, defineEmits, inject, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { fetchTrackInfo, fetchUserPlaylists, addTrackToPlaylist, removeTrackFromPlaylist } from '#imports';
+import { fetchTrackInfo, fetchUserPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, playTrack as spotifyPlayTrack } from '#imports';
+import { usePlayerStore } from '~/composables/usePlayerStore';
 
 const props = defineProps({
     track: {
@@ -120,6 +122,28 @@ const navigateToTrackAlbum = () => {
         router.push(`/album/${props.track.album.id}`);
     }
 }
+
+// Get player store
+const playerStore = usePlayerStore();
+
+// Play this track
+const playThisTrack = async (event) => {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    // Construct the track URI
+    const trackUri = `spotify:track:${props.track.id}`;
+    // Use the global player store to play this track
+    playerStore.playTrack(trackUri);
+
+    // Also call the actual Spotify API function
+    const success = await spotifyPlayTrack(trackUri);
+    if (!success) {
+        showToast('Failed to play track. Make sure a Spotify device is active.', true);
+    }
+};
 
 const toggleDropdown = (event) => {
     event.preventDefault();
