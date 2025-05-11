@@ -12,15 +12,15 @@ import { getAccessToken } from '#imports'
 const router = useRouter()
 
 onMounted(() => {
-    const hash = window.location.hash.substring(1)
-    const params = new URLSearchParams(hash)
+    const params = new URLSearchParams(window.location.search)
 
+    console.log('Code received in URL:', params.get('code'))
     
     const accessToken = getAccessToken(params.get('code'));
 
     if (accessToken) {
         localStorage.setItem('spotify_token', accessToken)
-        router.push('/dashboard')
+        router.replace('/dashboard')
     } else {
         console.error('No access token found in redirect.')
     }
