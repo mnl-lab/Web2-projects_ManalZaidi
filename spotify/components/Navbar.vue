@@ -46,8 +46,12 @@ onMounted(async () => {
         try {
             user.value = await fetchUserProfile();
         } catch (error) {
-            console.error('Error fetching user profile:', error);
-            // Handle error gracefully
+            console.error('Error fetching user profile in navbar:', error);
+            
+            // Don't automatically redirect from here 
+            // Let the dashboard component handle authentication issues
+            // This prevents redirect loops when there are multiple components
+            // trying to handle the same authentication errors
         }
     }
 });

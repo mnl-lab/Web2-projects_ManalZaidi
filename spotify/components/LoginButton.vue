@@ -12,6 +12,14 @@ const clientId = runtimeConfig.public.spotifyClientId || "49b1640e09494130aff858
 const redirectUri = runtimeConfig.public.spotifyRedirectUri || "https://fa24-197-230-122-196.ngrok-free.app/callback";
 
 const loginWithSpotify = () => {
+    // Clear any existing tokens before redirecting to login
+    if (process.client) {
+        localStorage.removeItem('spotify_token');
+        localStorage.removeItem('spotify_refresh_token');
+        localStorage.removeItem('spotify_expires_at');
+        console.log('Cleared existing tokens before login');
+    }
+
     const scopes = [
         'user-read-private',
         'user-read-email',
@@ -20,9 +28,18 @@ const loginWithSpotify = () => {
         'playlist-modify-private',
         'user-top-read',
         'user-read-playback-state'
-    ].join(' ');
-
-    const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&show_dialog=true`;
+    ].join(' ');    // Always force the login dialog to appear with show_dialog=true
+    // and add a state parameter with timestamp to prevent caching issues
+    const uniqueState = 'state_' + Date.now();
+    const AUTH_URL = `https://accounts.spotify.com/authorize`
+        + `?client_id=${clientId}`
+        + `&response_type=code`
+        + `&redirect_uri=${encodeURIComponent(redirectUri)}`
+        + `&scope=${encodeURIComponent(scopes)}`
+        + `&show_dialog=true`
+        + `&state=${uniqueState}`;
+        
+    console.log('Redirecting to Spotify login with state:', uniqueState);
     window.location.href = AUTH_URL;
 }
 

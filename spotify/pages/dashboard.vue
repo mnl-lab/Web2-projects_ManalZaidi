@@ -107,21 +107,38 @@ import {
     fetchUserPlaylists,
     getStoredAccessToken
 } from '#imports';
+import { logAuthEvent } from '~/composables/useAuthDebug';
 
 const router = useRouter();
 const user = ref(null);
 const accessToken = ref(null);
 
-// Only check token on client-side
-if (process.client) {
+// Delayed token validation function
+const validateToken = () => {
+    if (!process.client) return true;
+    
+    logAuthEvent('dashboard_token_check');
     accessToken.value = getStoredAccessToken();
+    
     if (!accessToken.value) {
+        logAuthEvent('dashboard_no_token_found');
+        console.warn('No access token found, redirecting to login');
+        // Clear any lingering tokens
+        localStorage.removeItem('spotify_token');
+        localStorage.removeItem('spotify_refresh_token');
+        localStorage.removeItem('spotify_expires_at');
         router.push('/');
-    }
-    else {
+        return false;
+    } else {
+        const tokenPreview = accessToken.value.substring(0, 10) + '...';
+        logAuthEvent('dashboard_token_found', { tokenPreview });
         console.log('Access token available:', !!accessToken.value);
+        return true;
     }
 }
+
+// Wait a bit to check token to ensure any token clearing has happened
+setTimeout(() => validateToken(), 100);
 
 // Tracks
 const recommendedTracks = ref([]);
@@ -133,10 +150,19 @@ const userPlaylists = ref([]);
 const loadingPlaylists = ref(true);
 const playlistError = ref(null);
 
-// // Albums
-// const userAlbums = ref([]);
-// const loadingAlbums = ref(true);
-// const albumError = ref(null);
+// Clear all authentication tokens and redirect to login
+const clearAuthAndRedirect = () => {
+    if (process.client) {
+        console.log('Clearing auth tokens due to authentication error');
+        localStorage.clear(); // Clear ALL localStorage to ensure clean state
+        
+        // Add a delay before redirect to ensure tokens are cleared
+        setTimeout(() => {
+            logAuthEvent('redirecting_to_login_after_clearing');
+            router.push('/');
+        }, 300);
+    }
+};
 
 const loadRecommendations = async () => {
     loadingTracks.value = true;
@@ -148,6 +174,12 @@ const loadRecommendations = async () => {
     } catch (err) {
         console.error('Error fetching recommendations:', err);
         trackError.value = 'Failed to load recommendations. Please try again later.';
+        
+        // Handle 403 Forbidden - likely an authentication issue
+        if (err.response && err.response.status === 403) {
+            trackError.value = 'Authentication error. Please sign in again.';
+            clearAuthAndRedirect();
+        }
     } finally {
         loadingTracks.value = false;
     }
@@ -163,25 +195,16 @@ const loadPlaylists = async () => {
     } catch (err) {
         console.error('Error fetching playlists:', err);
         playlistError.value = 'Failed to load playlists. Please try again later.';
+        
+        // Handle 403 Forbidden - likely an authentication issue
+        if (err.response && err.response.status === 403) {
+            playlistError.value = 'Authentication error. Please sign in again.';
+            clearAuthAndRedirect();
+        }
     } finally {
         loadingPlaylists.value = false;
     }
 };
-
-// const loadAlbums = async () => {
-//     loadingAlbums.value = true;
-//     albumError.value = null;
-
-//     try {
-//         userAlbums.value = await fetchUserAlbums();
-//         console.log('User albums loaded:', userAlbums.value.length);
-//     } catch (err) {
-//         console.error('Error fetching albums:', err);
-//         albumError.value = 'Failed to load albums. Please try again later.';
-//     } finally {
-//         loadingAlbums.value = false;
-//     }
-// };
 
 const refreshPlaylists = (newPlaylist) => {
     // Add the newly created playlist to the top of the list
@@ -196,24 +219,51 @@ onMounted(async () => {
     // Skip initialization on server-side rendering
     if (!process.client) return;
 
+    logAuthEvent('dashboard_mounted');
+    
     try {
-        // Check token once - no need to create a new ref here
-        accessToken.value = getStoredAccessToken();
-        if (!accessToken.value) {
-            console.error('No access token available');
-            router.push('/');
+        // Validate token
+        if (!validateToken()) {
+            logAuthEvent('dashboard_token_validation_failed');
             return;
         }
 
         // Load user profile
-        user.value = await fetchUserProfile();
-        console.log('User profile loaded:', user.value.display_name);
-
-        // Load all data in parallel
-        await Promise.all([
-            loadRecommendations(),
-            loadPlaylists()
-        ]);
+        logAuthEvent('dashboard_loading_profile');
+        try {
+            user.value = await fetchUserProfile();
+            logAuthEvent('dashboard_profile_loaded', { 
+                username: user.value?.display_name,
+                userId: user.value?.id 
+            });
+            console.log('User profile loaded:', user.value?.display_name);
+        } catch (err) {
+            console.error('Error fetching user profile:', err);
+            logAuthEvent('dashboard_profile_error', { 
+                status: err.response?.status,
+                message: err.message 
+            });
+            
+            if (err.response && err.response.status === 403) {
+                console.error('Authentication error (403). Clearing tokens and redirecting to login.');
+                logAuthEvent('dashboard_auth_error_403');
+                clearAuthAndRedirect();
+                return; // Stop further execution
+            }
+            throw err; // Re-throw for the outer catch block
+        }        // Only proceed if we successfully loaded the user profile
+        if (user.value && user.value.id) {
+            logAuthEvent('user_profile_loaded_successfully', { userId: user.value.id });
+            
+            // Load all data in parallel
+            await Promise.all([
+                loadRecommendations(),
+                loadPlaylists()
+            ]);
+        } else {
+            logAuthEvent('skip_loading_data_no_user_profile');
+            console.warn('Skipping data loading because user profile was not loaded');
+        }
     } catch (err) {
         console.error('Error initializing dashboard:', err);
         trackError.value = 'Failed to load your profile. Please try signing in again.';

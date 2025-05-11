@@ -7,23 +7,46 @@ const TOKEN_URL = 'https://accounts.spotify.com/api/token'
 function getStoredAccessToken() {
   // Check if we're in a browser environment
   if (process.client) {
-    return localStorage.getItem('spotify_token')
+    try {
+      const token = localStorage.getItem('spotify_token')
+      if (token) {
+        logAuthEvent('token_retrieved', { preview: token.substring(0, 5) + '...' })
+      } else {
+        logAuthEvent('token_not_found')
+      }
+      return token
+    } catch (error) {
+      logAuthEvent('error_accessing_token', { error: error.message })
+      return null
+    }
   }
   return null
 }
 
 // Check if token is expired and refresh if needed
+import { logAuthEvent } from './useAuthDebug'
+
 async function checkAndRefreshToken() {
   // Skip token checks on server-side
   if (!process.client) {
     return null;
   }
   
+  logAuthEvent('checking_token');
+  
+  const accessToken = localStorage.getItem('spotify_token');
+  if (!accessToken) {
+    logAuthEvent('no_access_token_found');
+    return null;
+  }
+  
   const expiresAt = localStorage.getItem('spotify_expires_at')
   // If token expires in less than 5 minutes (or is expired), refresh it
   if (!expiresAt || Date.now() > (parseInt(expiresAt) - 300000)) {
+    logAuthEvent('token_expired_or_expiring_soon');
     const refreshToken = localStorage.getItem('spotify_refresh_token')
     if (refreshToken) {
+      logAuthEvent('refresh_token_found');
       try {
         // Use our server endpoint to refresh the token (more secure)
         // This way we don't expose client secret in the frontend
@@ -80,18 +103,23 @@ async function checkAndRefreshToken() {
           }
           
           console.log('Token refreshed using fallback method');
-          return data.access_token;
-        } catch (fallbackError) {
+          return data.access_token;        } catch (fallbackError) {
           console.error('Both token refresh methods failed:', fallbackError);
-          // If refresh fails, redirect to login
-          window.location.href = '/';
+          
+          // Don't redirect immediately - clear tokens and return null
+          // This allows the calling component to handle the error gracefully
+          if (process.client) {
+            console.warn('Clearing invalid tokens');
+            localStorage.removeItem('spotify_token');
+            localStorage.removeItem('spotify_refresh_token');
+            localStorage.removeItem('spotify_expires_at');
+          }
           return null;
         }
       }
     } else {
-      // No refresh token, redirect to login
+      // No refresh token, but don't redirect automatically
       console.error('No refresh token available');
-      window.location.href = '/';
       return null;
     }
   }
@@ -100,6 +128,14 @@ async function checkAndRefreshToken() {
 
 async function authHeader() {
   const token = await checkAndRefreshToken()
+  
+  // If no token is available, throw a specific error
+  if (!token) {
+    const error = new Error('No valid authentication token available');
+    error.statusCode = 401; // Unauthorized
+    throw error;
+  }
+  
   return {
     headers: {
       Authorization: `Bearer ${token}`
@@ -109,14 +145,53 @@ async function authHeader() {
 
 // 🎵 User Profile
 export async function fetchUserProfile() {
-  const { data } = await axios.get(`${BASE_URL}/me`, await authHeader())
-  return data
+  try {
+    // Get headers or throw if no valid token
+    const headers = await authHeader()
+    
+    const { data } = await axios.get(`${BASE_URL}/me`, headers)
+    
+    // Store the user ID which is needed for some operations
+    if (process.client && data && data.id) {
+      localStorage.setItem('spotify_user_id', data.id)
+    }
+    
+    return data
+  } catch (error) {
+    console.error('Error in fetchUserProfile:', error.message || error)
+    
+    // Check for specific errors
+    if (error.response) {
+      // Set status code for better error handling
+      error.statusCode = error.response.status
+      
+      if (error.response.status === 401 || error.response.status === 403) {
+        // For auth errors, clear tokens - don't redirect here to avoid multiple redirects
+        if (process.client) {
+          console.warn('Authentication error in fetchUserProfile, clearing tokens')
+          localStorage.removeItem('spotify_token')
+          localStorage.removeItem('spotify_refresh_token')
+          localStorage.removeItem('spotify_expires_at')
+        }
+      }
+    }
+    throw error
+  }
 }
 
 // 🎧 Home Recommendations (simplified, using top tracks)
 export async function fetchRecommendedTracks() {
-  const { data } = await axios.get(`${BASE_URL}/me/top/tracks?limit=10`, await authHeader())
-  return data.items
+  try {
+    const { data } = await axios.get(`${BASE_URL}/me/top/tracks?limit=10`, await authHeader())
+    return data.items
+  } catch (error) {
+    console.error('Error in fetchRecommendedTracks:', error.message)
+    // Propagate the error with status code for better handling
+    if (error.response && error.response.status) {
+      error.statusCode = error.response.status
+    }
+    throw error
+  }
 }
 
 export async function fetchTopArtists() {
@@ -127,8 +202,17 @@ export async function fetchTopArtists() {
 
 // 📂 User Playlists
 export async function fetchUserPlaylists() {
-  const { data } = await axios.get(`${BASE_URL}/me/playlists?limit=10`, await authHeader())
-  return data.items
+  try {
+    const { data } = await axios.get(`${BASE_URL}/me/playlists?limit=10`, await authHeader())
+    return data.items
+  } catch (error) {
+    console.error('Error in fetchUserPlaylists:', error.message)
+    // Propagate the error with status code for better handling
+    if (error.response && error.response.status) {
+      error.statusCode = error.response.status
+    }
+    throw error
+  }
 }
 
 // ➕ Create Playlist
