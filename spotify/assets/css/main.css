@@ -1,0 +1,80 @@
+/* Global Color Palette for Spotify App */
+
+:root {
+    /* Primary Colors */
+    --color-light-purple: #D3BBC1;
+    --color-medium-purple: #582A40;
+    --color-dark-purple: #371D33;
+    --color-charcoal: #271B2C;
+    --color-black: #161925;
+
+    /* Additional UI Colors */
+    --color-white: #FFFFFF;
+    --color-light-gray: #EEEEEE;
+    --color-spotify-green: #1DB954;
+    --color-error: #FF5252;
+
+    /* Text Colors */
+    --text-primary: var(--color-white);
+    --text-secondary: #BBBBBB;
+    --text-muted: #888888;
+
+    /* Background Colors */
+    --background-primary: var(--color-black);
+    --background-secondary: var(--color-charcoal);
+    --background-elevated: var(--color-dark-purple);
+    --background-highlight: var(--color-medium-purple);
+
+    /* Interactive Element Colors */
+    --button-primary: var(--color-medium-purple);
+    --button-hover: var(--color-light-purple);
+    --button-text: var(--color-white);
+
+    /* Input Element Colors */
+    --input-background: rgba(255, 255, 255, 0.1);
+    --input-text: var(--color-white);
+    --input-placeholder: var(--text-muted);
+    --input-border: transparent;
+    --input-focus-border: var(--color-light-purple);
+}
+
+/* Global Styles */
+body {
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: var(--color-light-purple);
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-dark-purple);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-medium-purple);
+}
+
+/* Focus Styles */
+*:focus {
+    outline: 2px solid var(--color-light-purple);
+    outline-offset: 2px;
+}
