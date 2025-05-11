@@ -32,6 +32,96 @@ export async function fetchTopArtists() {
   return data.items
 }
 
+
+// 📂 User Playlists
+export async function fetchUserPlaylists() {
+  const { data } = await axios.get(`${BASE_URL}/me/playlists?limit=10`, authHeader())
+  return data.items
+}
+
+// ➕ Create Playlist
+export async function createPlaylist(userId, name, description = '') {
+  const { data } = await axios.post(
+    `${BASE_URL}/users/${userId}/playlists`,
+    { name, description, public: false },
+    authHeader()
+  )
+  return data
+}
+
+// ✏️ Add Track to Playlist
+export async function addTrackToPlaylist(playlistId, trackUri) {
+  await axios.post(
+    `${BASE_URL}/playlists/${playlistId}/tracks`,
+    { uris: [trackUri] },
+    authHeader()
+  )
+}
+
+// ❌ Remove Track from Playlist
+export async function removeTrackFromPlaylist(playlistId, trackUri) {
+  await axios.request({
+    method: 'DELETE',
+    url: `${BASE_URL}/playlists/${playlistId}/tracks`,
+    data: { tracks: [{ uri: trackUri }] },
+    ...authHeader()
+  })
+}
+// get playlist info
+export async function fetchPlaylistInfo(playlistId) {
+  const { data } = await axios.get(`${BASE_URL}/playlists/${playlistId}`, authHeader())
+  return data
+}
+
+
+// get playlist tracks
+export async function fetchPlaylistTracks(playlistId) {
+  const { data } = await axios.get(`${BASE_URL}/playlists/${playlistId}/tracks`, authHeader())
+  return data.items.map(item => ({
+    ...item.track,
+    added_at: item.added_at  // Keep the added_at property
+  }))
+}
+
+export async function pausePlayback() {
+  await axios.put(`${BASE_URL}/me/player/pause`, null, authHeader())
+}
+
+export async function skipToNext() {
+  await axios.post(`${BASE_URL}/me/player/next`, null, authHeader())
+}
+
+export async function skipToPrevious() {
+  await axios.post(`${BASE_URL}/me/player/previous`, null, authHeader())
+}
+
+export async function fetchCurrentlyPlaying() {
+  const { data } = await axios.get(`${BASE_URL}/me/player/currently-playing`, authHeader())
+  return data
+}
+
+// 💿 User's Saved Albums
+export async function fetchUserAlbums(limit = 10) {
+  try {
+    const { data } = await axios.get(`${BASE_URL}/me/albums?limit=${limit}`, authHeader())
+    return data.items ? data.items.map(item => item.album) : []
+  } catch (error) {
+    console.error('Error fetching user albums:', error)
+    // Fallback to using user's top artists for demo purposes
+    // This is in case the user doesn't have saved albums or the API endpoint isn't working
+    const { data } = await axios.get(`${BASE_URL}/me/top/artists?limit=${limit}`, authHeader())
+    // Transform artists to album-like objects for UI compatibility
+    return data.items ? data.items.map(artist => ({
+      id: artist.id,
+      name: `Best of ${artist.name}`,
+      images: artist.images,
+      type: 'album',
+      artists: [artist],
+      description: `Music by ${artist.name}`
+    })) : []
+  }
+}
+
 // 🔍 Search
 export async function searchSpotify(query, type = 'track,artist,album,playlist') {
   // Get user's market from profile for better relevance
@@ -103,78 +193,4 @@ export async function searchSpotify(query, type = 'track,artist,album,playlist')
   }
 
   return data;
-}
-
-// 📂 User Playlists
-export async function fetchUserPlaylists() {
-  const { data } = await axios.get(`${BASE_URL}/me/playlists?limit=10`, authHeader())
-  return data.items
-}
-
-// ➕ Create Playlist
-export async function createPlaylist(userId, name, description = '') {
-  const { data } = await axios.post(
-    `${BASE_URL}/users/${userId}/playlists`,
-    { name, description, public: false },
-    authHeader()
-  )
-  return data
-}
-
-// ✏️ Add Track to Playlist
-export async function addTrackToPlaylist(playlistId, trackUri) {
-  await axios.post(
-    `${BASE_URL}/playlists/${playlistId}/tracks`,
-    { uris: [trackUri] },
-    authHeader()
-  )
-}
-
-// ❌ Remove Track from Playlist
-export async function removeTrackFromPlaylist(playlistId, trackUri) {
-  await axios.request({
-    method: 'DELETE',
-    url: `${BASE_URL}/playlists/${playlistId}/tracks`,
-    data: { tracks: [{ uri: trackUri }] },
-    ...authHeader()
-  })
-}
-
-export async function pausePlayback() {
-  await axios.put(`${BASE_URL}/me/player/pause`, null, authHeader())
-}
-
-export async function skipToNext() {
-  await axios.post(`${BASE_URL}/me/player/next`, null, authHeader())
-}
-
-export async function skipToPrevious() {
-  await axios.post(`${BASE_URL}/me/player/previous`, null, authHeader())
-}
-
-export async function fetchCurrentlyPlaying() {
-  const { data } = await axios.get(`${BASE_URL}/me/player/currently-playing`, authHeader())
-  return data
-}
-
-// 💿 User's Saved Albums
-export async function fetchUserAlbums(limit = 10) {
-  try {
-    const { data } = await axios.get(`${BASE_URL}/me/albums?limit=${limit}`, authHeader())
-    return data.items ? data.items.map(item => item.album) : []
-  } catch (error) {
-    console.error('Error fetching user albums:', error)
-    // Fallback to using user's top artists for demo purposes
-    // This is in case the user doesn't have saved albums or the API endpoint isn't working
-    const { data } = await axios.get(`${BASE_URL}/me/top/artists?limit=${limit}`, authHeader())
-    // Transform artists to album-like objects for UI compatibility
-    return data.items ? data.items.map(artist => ({
-      id: artist.id,
-      name: `Best of ${artist.name}`,
-      images: artist.images,
-      type: 'album',
-      artists: [artist],
-      description: `Music by ${artist.name}`
-    })) : []
-  }
 }

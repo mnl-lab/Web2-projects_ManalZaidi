@@ -1,5 +1,5 @@
 <template>
-    <div class="playlist-card">
+    <div class="playlist-card" @click="playPlaylist">
         <div class="playlist-image-container">
             <img :src="playlist.images?.[0]?.url || '/default-album.jpg'" alt="Playlist Image" class="playlist-image" />
             <div class="play-overlay" @click="playPlaylist">
