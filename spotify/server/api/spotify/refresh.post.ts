@@ -1,5 +1,8 @@
 // server/api/spotify/refresh.post.ts
-export default defineEventHandler(async (event) => {  const body = await readBody(event);
+import { defineEventHandler, readBody, createError } from 'h3'
+import { useRuntimeConfig } from '#imports'
+
+export default defineEventHandler(async (event) => {const body = await readBody(event);
   
   const config = useRuntimeConfig();
   const refreshToken = body.refresh_token;

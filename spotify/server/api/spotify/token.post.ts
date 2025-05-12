@@ -1,6 +1,8 @@
 // server/api/spotify/token.post.ts
+import { defineEventHandler, readBody, createError } from 'h3'
+import { useRuntimeConfig } from '#imports'
 
-export default defineEventHandler(async (event) => {  const body = await readBody(event);
+export default defineEventHandler(async (event) => {const body = await readBody(event);
   
   const config = useRuntimeConfig();
   const { code } = body;
