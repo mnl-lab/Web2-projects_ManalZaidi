@@ -3,15 +3,18 @@
     <div class="track-number">{{ index + 1 }}</div>
     <div class="track-info">
       <div class="track-name">{{ track.name }}</div>
-      <div class="track-artists">{{ artistNames }}</div>    </div>    <div class="track-duration">{{ formatDuration(track.duration_ms) }}</div>
+      <div class="track-artists">{{ artistNames }}</div>
+    </div>
+    <div class="track-duration">{{ formatDuration(track.duration_ms) }}</div>
     <div class="track-actions">
       <button class="play-button" title="Play">
         <span class="material-icons">play_arrow</span>
-      </button>      <div class="menu-container">
+      </button>
+      <div class="menu-container">
         <button @click.stop.prevent="toggleDropdown" class="options-btn" title="More options">
           <span class="material-icons">more_vert</span>
         </button>
-        <div class="menu-popup" v-if="showDropdown" @click.stop>          <!-- Add to playlist view -->
+        <div class="menu-popup" v-if="showDropdown" @click.stop> <!-- Add to playlist view -->
           <div v-if="showAddToPlaylist" class="menu-view">
             <div class="menu-header">Add to playlist:</div>
             <div v-if="loadingPlaylists" class="menu-message">
@@ -21,12 +24,8 @@
               <span>No playlists found</span>
             </div>
             <div v-else class="menu-scroll-area">
-              <button 
-                v-for="playlist in userPlaylists" 
-                :key="playlist.id" 
-                @click.stop.prevent="addToPlaylist(playlist.id, playlist.name)" 
-                class="menu-option"
-              >
+              <button v-for="playlist in userPlaylists" :key="playlist.id"
+                @click.stop.prevent="addToPlaylist(playlist.id, playlist.name)" class="menu-option">
                 {{ playlist.name }}
               </button>
             </div>
@@ -34,7 +33,7 @@
               <span class="material-icons">arrow_back</span> Back
             </button>
           </div>
-          
+
           <!-- Main options view -->
           <div v-else class="menu-view">
             <button @click.stop.prevent="openAddToPlaylist" class="menu-option">
@@ -88,16 +87,36 @@ const artistNames = computed(() => {
 // Format track duration from milliseconds to MM:SS format
 const formatDuration = (ms) => {
   if (!ms) return '0:00';
-  
+
   const minutes = Math.floor(ms / 60000);
   const seconds = ((ms % 60000) / 1000).toFixed(0);
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
 
-const playTrack = () => {
-  // This function would handle playing the track
-  // It could emit an event that the parent component listens for
-  console.log('Play track:', props.track.name);
+import { useAudioPlayer } from '#imports';
+const player = useAudioPlayer();
+
+const playTrack = async () => {
+  // Check if the track has a preview URL
+  if (!props.track.preview_url) {
+    showToast('This track has no preview available', true);
+    return;
+  }
+
+  const trackUrl = props.track.preview_url;
+  const result = await player.playTrack(
+    trackUrl,
+    {
+      name: props.track.name,
+      artist: artistNames.value,
+      albumArt: props.track.album?.images?.[0]?.url
+    }
+  );
+
+  // If playTrack returns false, it means there was an issue (likely not premium)
+  if (result === false) {
+    showToast('Premium subscription required to play tracks', true);
+  }
 };
 
 // Only play track if we're not interacting with the dropdown
@@ -112,22 +131,22 @@ const playTrackIfNotDropdown = (event) => {
 const toggleDropdown = (event) => {
   event.preventDefault();
   event.stopPropagation();
-  
+
   // Toggle visibility
   showDropdown.value = !showDropdown.value;
-  
+
   if (showDropdown.value) {
     // Reset sub-menus when opening dropdown
     showAddToPlaylist.value = false;
-    
+
     // Position the popup menu correctly
     setTimeout(() => {
       const button = event.target.closest('.options-btn');
       const menuPopup = document.querySelector('.menu-popup');
-      
+
       if (button && menuPopup) {
         const buttonRect = button.getBoundingClientRect();
-          // Position the dropdown above the button
+        // Position the dropdown above the button
         menuPopup.style.position = 'fixed';
         const menuHeight = menuPopup.offsetHeight || 200; // Default height if not measurable yet
         menuPopup.style.top = `${buttonRect.top - menuHeight - 10}px`; // Place above with 10px gap
@@ -141,7 +160,7 @@ const toggleDropdown = (event) => {
 const openAddToPlaylist = async () => {
   showAddToPlaylist.value = true;
   loadingPlaylists.value = true;
-  
+
   try {
     userPlaylists.value = await fetchUserPlaylists();
   } catch (error) {
@@ -158,9 +177,9 @@ const addToPlaylist = async (playlistId, playlistName) => {
     const trackUri = `spotify:track:${props.track.id}`;
     await addTrackToPlaylist(playlistId, trackUri);
     showToast(`Added to "${playlistName}"`, false);
-    
+
     // Emit event to parent component
-    emit('track-added', { 
+    emit('track-added', {
       trackId: props.track.id,
       playlistId: playlistId,
       playlistName: playlistName
@@ -179,7 +198,7 @@ const showToast = (message, isError = false) => {
   toastMessage.value = message;
   toastIsError.value = isError;
   toastVisible.value = true;
-  
+
   // Hide toast after 3 seconds
   setTimeout(() => {
     toastVisible.value = false;
@@ -188,9 +207,9 @@ const showToast = (message, isError = false) => {
 
 // Close dropdown when clicking outside
 const clickOutsideHandler = (event) => {
-  if (showDropdown.value && 
-      !event.target.closest('.menu-popup') && 
-      !event.target.closest('.options-btn')) {
+  if (showDropdown.value &&
+    !event.target.closest('.menu-popup') &&
+    !event.target.closest('.options-btn')) {
     showDropdown.value = false;
     showAddToPlaylist.value = false;
   }
@@ -330,7 +349,8 @@ onUnmounted(() => {
 }
 
 .menu-popup {
-  position: fixed; /* Will be positioned via JS */
+  position: fixed;
+  /* Will be positioned via JS */
   background-color: #333;
   border-radius: 4px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
@@ -346,6 +366,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -451,12 +472,26 @@ onUnmounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 </style>

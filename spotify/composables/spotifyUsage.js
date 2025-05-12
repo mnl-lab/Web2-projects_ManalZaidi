@@ -1,5 +1,6 @@
 // composables/spotifyUsage.js
 import axios from 'axios'
+import { useRuntimeConfig } from '#app'
 
 const BASE_URL = 'https://api.spotify.com/v1'
 const TOKEN_URL = 'https://accounts.spotify.com/api/token'
@@ -37,13 +38,28 @@ async function checkAndRefreshToken() {
   const accessToken = localStorage.getItem('spotify_token');
   if (!accessToken) {
     logAuthEvent('no_access_token_found');
+    console.warn('No access token found in localStorage');
     return null;
   }
+    const expiresAt = localStorage.getItem('spotify_expires_at')
   
-  const expiresAt = localStorage.getItem('spotify_expires_at')
+  // Check if expiresAt is valid
+  const parsedExpiresAt = expiresAt ? parseInt(expiresAt) : 0;
+  if (isNaN(parsedExpiresAt)) {
+    console.warn('Invalid expires_at value:', expiresAt);
+    logAuthEvent('invalid_expires_at', { value: expiresAt });
+  }
+  
   // If token expires in less than 5 minutes (or is expired), refresh it
-  if (!expiresAt || Date.now() > (parseInt(expiresAt) - 300000)) {
-    logAuthEvent('token_expired_or_expiring_soon');
+  const nowTime = Date.now();
+  const timeUntilExpiry = parsedExpiresAt - nowTime;
+  
+  if (!expiresAt || nowTime > (parsedExpiresAt - 300000)) {
+    logAuthEvent('token_expired_or_expiring_soon', { 
+      expiresAt: new Date(parsedExpiresAt).toISOString(),
+      nowTime: new Date(nowTime).toISOString(),
+      timeUntilExpirySecs: Math.floor(timeUntilExpiry / 1000)
+    });
     const refreshToken = localStorage.getItem('spotify_refresh_token')
     if (refreshToken) {
       logAuthEvent('refresh_token_found');
@@ -72,25 +88,23 @@ async function checkAndRefreshToken() {
         }
         
         console.log('Token refreshed successfully!');
-        return data.access_token;
-      } catch (error) {
+        return data.access_token;      } catch (error) {
         console.error('Failed to refresh token:', error);
-        
-        // As a fallback, try directly with Spotify API
-        try {          // Use client side refresh as a fallback only
-          const CLIENT_ID = '49b1640e09494130aff858433399a770'
-          const CLIENT_SECRET = 'b14f913717014cb591dd706cf643ffde'
+          // As fallback, try again with a delay - the original error might be temporary
+        try {
+          console.log('Attempting token refresh retry after delay...');
+          // Wait 1 second before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+            // Retry the server endpoint (not direct API call which needs CLIENT_SECRET)
+          const response = await axios.post('/api/spotify/refresh', { 
+            refresh_token: refreshToken 
+          });
           
-          const { data } = await axios.post(
-            TOKEN_URL,
-            new URLSearchParams({
-              grant_type: 'refresh_token',
-              refresh_token: refreshToken,
-              client_id: CLIENT_ID,
-              client_secret: CLIENT_SECRET
-            }),
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-          );
+          if (!response.data || !response.data.access_token) {
+            throw new Error('Invalid token response in fallback');
+          }
+          
+          const data = response.data;
             // Update stored tokens
           const newExpiresAt = Date.now() + (data.expires_in * 1000);
           if (process.client) {
@@ -127,19 +141,29 @@ async function checkAndRefreshToken() {
 }
 
 async function authHeader() {
-  const token = await checkAndRefreshToken()
-  
-  // If no token is available, throw a specific error
-  if (!token) {
-    const error = new Error('No valid authentication token available');
-    error.statusCode = 401; // Unauthorized
-    throw error;
-  }
-  
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`
+  try {
+    const token = await checkAndRefreshToken()
+    
+    // If no token is available, throw a specific error
+    if (!token) {
+      logAuthEvent('auth_header_no_token');
+      console.warn('No valid token available for API request');
+      const error = new Error('No valid authentication token available');
+      error.statusCode = 401; // Unauthorized
+      throw error;
     }
+    
+    // Log successful token acquisition (only first 5 chars for security)
+    logAuthEvent('auth_header_success', { tokenPreview: token.substring(0, 5) + '...' });
+    
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  } catch (error) {
+    logAuthEvent('auth_header_error', { message: error.message });
+    throw error;
   }
 }
 
@@ -174,6 +198,20 @@ export async function fetchUserProfile() {
           localStorage.removeItem('spotify_expires_at')
         }
       }
+    }
+    throw error
+  }
+}
+// is the user premium?
+export async function isUserPremium() {
+  try {
+    const { data } = await axios.get(`${BASE_URL}/me`, await authHeader())
+    return data.product === 'premium'
+  } catch (error) {
+    console.error('Error in isUserPremium:', error.message)
+    // Propagate the error with status code for better handling
+    if (error.response && error.response.status) {
+      error.statusCode = error.response.status
     }
     throw error
   }

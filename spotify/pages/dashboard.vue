@@ -38,7 +38,7 @@
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">Your Playlists</h2>
-                    <a href="/playlists" class="section-link">Show all</a>
+                    
                 </div>
 
                 <div v-if="loadingPlaylists" class="loading">
@@ -63,33 +63,7 @@
                 </div>
             </div>
 
-            <!-- User Albums Section
-            <div class="section">
-                <div class="section-header">
-                    <h2 class="section-title">Your Albums</h2>
-                    <a href="#" class="section-link">Show all</a>
-                </div>
-
-                <div v-if="loadingAlbums" class="loading">
-                    <div class="spinner"></div>
-                    <p>Loading your albums...</p>
-                </div>
-
-                <div v-else-if="albumError" class="error-message">
-                    <p>{{ albumError }}</p>
-                    <button @click="loadAlbums">Try Again</button>
-                </div>
-
-                <div v-else-if="userAlbums.length === 0" class="no-results">
-                    <p>You don't have any saved albums yet.</p>
-                </div>
-
-                <div v-else class="scrollable-container">
-                    <div class="albums-grid">
-                        <album-card v-for="album in userAlbums" :key="album.id" :album="album"></album-card>
-                    </div>
-                </div>
-            </div> -->
+           
         </div>
         <!-- <div v-if="accessToken">
             <audio-player :accessToken="accessToken"></audio-player>
