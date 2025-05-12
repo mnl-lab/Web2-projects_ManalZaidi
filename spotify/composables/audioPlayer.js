@@ -65,12 +65,16 @@ export function useAudioPlayer() {  const setAccessToken = (token) => {
       console.error('Error checking premium status:', error);
       isPremium.value = false;
     }
-  };
-  const playTrack = async (trackUrl, meta = {}) => {
-    if (!process.client || !trackUrl) return;
+  };  const playTrack = async (trackUrl, meta = {}) => {
+    console.log("Attempting to play track:", trackUrl, meta);
+    if (!process.client || !trackUrl) {
+      console.error("Cannot play track: missing URL or not in client context");
+      return false;
+    }
     
     // Check if premium status has been checked, if not check it now
     if (!premiumChecked.value && accessToken.value) {
+      console.log("Checking premium status before playing");
       await checkPremiumStatus();
     }
     
@@ -81,18 +85,23 @@ export function useAudioPlayer() {  const setAccessToken = (token) => {
       return false;
     }
     
+    console.log("Premium status confirmed, continuing playback");
+    
     if (!audio) {
       console.error("Audio object is not initialized");
       return false;
     }
     
     if (audio.src !== trackUrl) {
+      console.log("Setting new track source:", trackUrl);
       audio.src = trackUrl;
       currentTrack.value = { ...meta, url: trackUrl };
     }
     
     try {
+      console.log("Calling audio.play()");
       await audio.play();
+      console.log("Playback started successfully");
       isPlaying.value = true;
       return true;
     } catch (error) {

@@ -36,9 +36,19 @@ import { useAudioPlayer, isUserPremium } from '#imports';
 const player = useAudioPlayer();
 const isPremium = ref(false);
 onMounted(async () => {
-  // Check if the user is a premium user
-  isPremium.value = await isUserPremium();
-  console.log("Is user premium:", isPremium.value);
+  try {
+    // Check if the user is a premium user
+    isPremium.value = await isUserPremium();
+    console.log("Is user premium:", isPremium.value);
+
+    // Synchronize the premium status with the audio player
+    if (isPremium.value) {
+      await player.checkPremiumStatus();
+    }
+  } catch (error) {
+    console.error("Error checking premium status:", error);
+    isPremium.value = false;
+  }
 });
 // two‑way sync slider
 const localProgress = ref(0);
@@ -67,7 +77,7 @@ const formatTime = (seconds) => {
 };
 
 const togglePlay = () => {
-  if (!player.isPremium) {
+  if (!isPremium.value) {
     alert("This feature requires a Spotify Premium subscription. Please upgrade your account to play tracks.");
     return;
   }
@@ -76,7 +86,7 @@ const togglePlay = () => {
 };
 
 const onSeek = () => {
-  if (!player.isPremium) {
+  if (!isPremium.value) {
     alert("This feature requires a Spotify Premium subscription.");
     return;
   }
