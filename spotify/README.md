@@ -1,4 +1,5 @@
 # Spotify Music Explorer
+# deployement link: https://spotify-clone-rho-fawn-54.vercel.app/
 
 A feature-rich Spotify client built with Nuxt 3 that allows users to explore their music, manage playlists, and enjoy a seamless music discovery experience.
 
