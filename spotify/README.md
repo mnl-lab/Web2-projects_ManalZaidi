@@ -3,7 +3,7 @@
 
 A feature-rich Spotify client built with Nuxt 3 that allows users to explore their music, manage playlists, and enjoy a seamless music discovery experience.
 
-important side note: for correction purposes, please email me or send me a message to add your spotify account in the authorized users because not everyone is allowed to log in because of the API's developement mode, thanks for undrestanding.
+⚠️**important side note:** for correction purposes, please email me or send me a message to add your spotify account in the authorized users because not everyone is allowed to log in because of the API's developement mode, thanks for undrestanding.
 
 ## ✨ Features
 
