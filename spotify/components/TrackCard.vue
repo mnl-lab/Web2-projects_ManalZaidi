@@ -2,7 +2,7 @@
     <div class="track-card">
         <div class="track-image" @click="navigateToTrackAlbum">
             <img :src="track.album.images[0]?.url || '/default-album.jpg'" alt="Album Cover" />
-            <div class="play-overlay">
+            <div class="play-overlay" @click="playCurrentTrack">
                 <i class="bi bi-play-fill"></i>
             </div>
         </div>
@@ -80,7 +80,7 @@
 <script setup>
 import { defineProps, ref, onMounted, defineEmits, inject, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { fetchTrackInfo, fetchUserPlaylists, addTrackToPlaylist, removeTrackFromPlaylist } from '#imports';
+import { fetchTrackInfo, fetchUserPlaylists, addTrackToPlaylist, removeTrackFromPlaylist, useAudioPlayer } from '#imports';
 
 const props = defineProps({
     track: {
@@ -120,6 +120,32 @@ const navigateToTrackAlbum = () => {
         router.push(`/album/${props.track.album.id}`);
     }
 }
+const player = useAudioPlayer();
+
+const playCurrentTrack = async () => {
+    // Check if the track has a preview URL
+    if (!props.track.preview_url) {
+        showToast('This track has no preview available', true);
+        return;
+    }
+
+    const trackUrl = props.track.preview_url;
+    const result = await player.playTrack(
+        trackUrl,
+        {
+            name: props.track.name,
+            artist: props.track.artists.map(a => a.name).join(', '),
+            albumArt: props.track.album.images[0]?.url
+        }
+    );
+
+    // If playTrack returns false, it means there was an issue (likely not premium)
+    if (result === false) {
+        // The audio player already shows an alert, so we don't need to show another one
+        // Just update UI to show player is not playing
+        showToast('Premium subscription required to play tracks', true);
+    }
+};
 
 const toggleDropdown = (event) => {
     event.preventDefault();
@@ -234,7 +260,7 @@ onMounted(async () => {
     if (process.client) {
         try {
             trackInfo.value = await fetchTrackInfo(props.track.id);
-            // Add event listener for closing dropdown
+// Add event listener for closing dropdown
             document.addEventListener('click', clickOutsideHandler);
         } catch (error) {
             console.error('Error fetching track info:', error);

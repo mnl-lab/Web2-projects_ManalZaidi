@@ -19,6 +19,9 @@
                     <h1>{{ playlistInfo?.name }}</h1>
                     <p>By {{ playlistInfo?.owner?.display_name }}</p>
                     <p>Tracks: {{ playlistTracks.length }}</p>
+                    <button @click="playAllTracks" class="play-all-button">
+                        <i class="bi bi-play-fill"></i> Play All
+                    </button>
                 </div>
             </div>
 
@@ -49,6 +52,13 @@
                 </div>
             </div>
         </div>
+
+        <!-- Toast notification -->
+        <div class="toast-container" v-if="toastVisible">
+            <div class="toast" :class="{ 'toast-success': !toastIsError, 'toast-error': toastIsError }">
+                {{ toastMessage }}
+            </div>
+        </div>
     </div>
 </template>
 
@@ -56,7 +66,9 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchPlaylistTracks, fetchPlaylistInfo } from '#imports';
+import { useAudioPlayer } from '~/composables/audioPlayer';
 
+const player = useAudioPlayer();
 const route = useRoute();
 const playlistTracks = ref([]);
 const playlistInfo = ref(null);
@@ -122,6 +134,55 @@ const loadPlaylistData = async () => {
         error.value = err;
     } finally {
         loading.value = false;
+    }
+};
+
+// Toast notification
+const toastVisible = ref(false);
+const toastMessage = ref('');
+const toastIsError = ref(false);
+
+const showToast = (message, isError = false) => {
+    toastMessage.value = message;
+    toastIsError.value = isError;
+    toastVisible.value = true;
+
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
+// Play all tracks in the playlist
+const playAllTracks = async () => {
+    // Check if there are any tracks in the playlist
+    if (playlistTracks.value.length === 0) {
+        showToast('No tracks available to play', true);
+        return;
+    }
+
+    // Find the first track with a preview URL
+    const trackWithPreview = playlistTracks.value.find(track => track.preview_url);
+
+    if (!trackWithPreview) {
+        showToast('No tracks with preview are available', true);
+        return;
+    }
+
+    // Check premium status and play the first track
+    const result = await player.playTrack(
+        trackWithPreview.preview_url,
+        {
+            name: trackWithPreview.name,
+            artist: trackWithPreview.artists.map(a => a.name).join(', '),
+            albumArt: trackWithPreview.album.images[0]?.url
+        }
+    );
+
+    if (result === false) {
+        showToast('Premium subscription required to play tracks', true);
+    } else {
+        showToast(`Playing "${trackWithPreview.name}"`, false);
     }
 };
 
@@ -262,5 +323,67 @@ h2 {
 .sort-icon {
     margin-left: 5px;
     font-size: 0.8rem;
+}
+
+.play-all-button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: var(--color-medium-purple);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.play-all-button:hover {
+    background-color: var(--color-light-purple);
+}
+
+.play-all-button i {
+    margin-right: 5px;
+    font-size: 1.2em;
+}
+
+/* Toast notifications */
+.toast-container {
+    position: fixed;
+    bottom: 80px;
+    /* Above the audio player */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+}
+
+.toast {
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeInUp 0.3s forwards;
+}
+
+.toast-success {
+    background-color: #4caf50;
+}
+
+.toast-error {
+    background-color: #f44336;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>

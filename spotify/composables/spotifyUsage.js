@@ -178,6 +178,20 @@ export async function fetchUserProfile() {
     throw error
   }
 }
+// is the user premium?
+export async function isUserPremium() {
+  try {
+    const { data } = await axios.get(`${BASE_URL}/me`, await authHeader())
+    return data.product === 'premium'
+  } catch (error) {
+    console.error('Error in isUserPremium:', error.message)
+    // Propagate the error with status code for better handling
+    if (error.response && error.response.status) {
+      error.statusCode = error.response.status
+    }
+    throw error
+  }
+}
 
 // 🎧 Home Recommendations (simplified, using top tracks)
 export async function fetchRecommendedTracks() {
