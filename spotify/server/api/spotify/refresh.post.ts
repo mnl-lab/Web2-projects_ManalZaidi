@@ -1,9 +1,15 @@
 // server/api/spotify/refresh.post.ts
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+export default defineEventHandler(async (event) => {  const body = await readBody(event);
   
   const config = useRuntimeConfig();
   const refreshToken = body.refresh_token;
+  
+  console.log('[SERVER] Refresh token request received');
+  console.log('[SERVER] Environment check:', {
+    hasClientId: !!config.public.spotifyClientId,
+    hasClientSecret: !!config.spotifyClientSecret,
+    hasRefreshToken: !!refreshToken,
+  });
   
   if (!refreshToken) {
     return createError({

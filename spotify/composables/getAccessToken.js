@@ -1,26 +1,19 @@
 import axios from 'axios'
 import { logAuthEvent } from './useAuthDebug'
+import { useRuntimeConfig } from '#app'
 
-const TOKEN_URL     = 'https://accounts.spotify.com/api/token'
-const CLIENT_ID     = '49b1640e09494130aff858433399a770'
-const CLIENT_SECRET = 'b14f913717014cb591dd706cf643ffde'
-const REDIRECT_URI  = 'https://fa24-197-230-122-196.ngrok-free.app/callback'
+const TOKEN_URL = '/api/spotify/token'
 
 export async function getAccessToken(code) {
-  logAuthEvent('getAccessToken_started', { code: code.substring(0, 10) + '...' })
-  console.log('TOKEN →', { code, REDIRECT_URI, CLIENT_ID, CLIENT_SECRET })
+  const config = useRuntimeConfig()
+  const REDIRECT_URI = config.public.spotifyRedirectUri
+    logAuthEvent('getAccessToken_started', { code: code.substring(0, 10) + '...' })
+  console.log('TOKEN →', { code, REDIRECT_URI })
   try {
     const { data } = await axios.post(
       TOKEN_URL,
-      new URLSearchParams({
-        grant_type:    'authorization_code',
-        code,
-        redirect_uri:  REDIRECT_URI,
-        client_id:     CLIENT_ID,
-        client_secret: CLIENT_SECRET
-      }),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-    )    // Only access localStorage on the client side
+      { code }
+    )// Only access localStorage on the client side
     if (process.client) {
       try {
         // First, clear all localStorage to ensure clean state

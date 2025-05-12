@@ -37,6 +37,14 @@ const player = useAudioPlayer();
 const isPremium = ref(false);
 onMounted(async () => {
   try {
+    // First check if we have an access token before trying premium check
+    const accessToken = localStorage.getItem('spotify_token');
+    if (!accessToken) {
+      console.log("No access token available, user not logged in yet"); // Changed to log instead of warn
+      isPremium.value = false;
+      return;
+    }
+
     // Check if the user is a premium user
     isPremium.value = await isUserPremium();
     console.log("Is user premium:", isPremium.value);
@@ -47,7 +55,15 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error("Error checking premium status:", error);
-    isPremium.value = false;
+
+    // Handle authentication errors specially
+    if (error.message === 'No valid authentication token available') {
+      console.log("Authentication required for premium check"); // Changed to log instead of warn
+      isPremium.value = false;
+    } else {
+      // For other errors
+      isPremium.value = false;
+    }
   }
 });
 // two‑way sync slider

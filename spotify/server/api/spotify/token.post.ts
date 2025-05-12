@@ -1,9 +1,16 @@
 // server/api/spotify/token.post.ts
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+
+export default defineEventHandler(async (event) => {  const body = await readBody(event);
   
   const config = useRuntimeConfig();
   const { code } = body;
+  
+  console.log('[SERVER] Token request received with code:', code?.substring(0, 10) + '...');
+  console.log('[SERVER] Environment check:', {
+    hasClientId: !!config.public.spotifyClientId,
+    hasClientSecret: !!config.spotifyClientSecret,
+    redirectUri: config.public.spotifyRedirectUri
+  });
   
   if (!code) {
     return createError({
@@ -25,14 +32,29 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params,
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.error('Spotify token error:', errorData);
+    });    if (!res.ok) {
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (e) {
+        errorData = { error: 'Could not parse error response' };
+      }
+      
+      console.error('Spotify token error:', {
+        status: res.status,
+        statusText: res.statusText,
+        errorData,
+        requestParams: {
+          grantType: 'authorization_code',
+          redirectUri: config.public.spotifyRedirectUri,
+          hasClientId: !!config.public.spotifyClientId,
+          hasClientSecret: !!config.spotifyClientSecret
+        }
+      });
+      
       return createError({
         statusCode: res.status,
-        message: errorData.error_description || 'Failed to get token'
+        message: errorData.error_description || `Request failed with status code ${res.status}`
       });
     }
 
